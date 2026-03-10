@@ -1,4 +1,4 @@
-# AI-Based Text Recognition for Noisy Historical Newspapers
+# AI-Based Text Recognition for Noisy Historical Newspapers - Group 8 - CITS5206 Information Technology Capstone Project 2026
 
 ## Overview
 
