@@ -1,0 +1,235 @@
+.ornamental-rule {
+  position: relative;
+  height: 8px;
+  margin: 24px 0;
+  width: 100%;
+}
+
+.ornamental-rule::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(184, 134, 61, 0.5);
+}
+
+.ornamental-rule::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(184, 134, 61, 0.3);
+}
+
+.ornamental-rule-thin {
+  position: relative;
+  height: 2px;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.ornamental-rule-thin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(184, 134, 61, 0.25);
+}
+
+.double-rule {
+  position: relative;
+  height: 12px;
+  margin: 20px 0;
+}
+
+.double-rule::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(184, 134, 61, 0.4);
+}
+
+.double-rule::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(184, 134, 61, 0.2);
+}
+
+.paper-texture {
+  position: relative;
+}
+
+.paper-texture::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+}
+
+.archival-card {
+  position: relative;
+  border: 1px solid rgba(184, 134, 61, 0.2);
+  transition: all 0.3s ease;
+}
+
+.archival-card:hover {
+  border-color: rgba(184, 134, 61, 0.35);
+  box-shadow: 0 4px 20px rgba(184, 134, 61, 0.15);
+}
+
+.archival-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(184, 134, 61, 0.4);
+  border-style: solid;
+  border-width: 2px 0 0 2px;
+}
+
+.archival-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(184, 134, 61, 0.4);
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+}
+
+.newspaper-columns {
+  column-count: 3;
+  column-gap: 24px;
+  column-rule: 1px solid rgba(184, 134, 61, 0.15);
+}
+
+@media (max-width: 1024px) {
+  .newspaper-columns {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .newspaper-columns {
+    column-count: 1;
+  }
+}
+
+.column-item {
+  break-inside: avoid;
+  margin-bottom: 24px;
+}
+
+.bauhaus-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.geometric-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.geometric-shape {
+  position: absolute;
+  opacity: 0.03;
+}
+
+.geometric-circle {
+  border-radius: 50%;
+  border: 2px solid #B8860B;
+}
+
+.geometric-triangle {
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid #C62828;
+}
+
+.geometric-square {
+  background-color: #1A3A5C;
+}
+
+.upload-frame {
+  position: relative;
+  border: 2px solid rgba(184, 134, 61, 0.3);
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.upload-frame::before,
+.upload-frame::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(184, 134, 61, 0.5);
+  border-style: solid;
+}
+
+.upload-frame::before {
+  top: -2px;
+  left: -2px;
+  border-width: 3px 0 0 3px;
+}
+
+.upload-frame::after {
+  bottom: -2px;
+  right: -2px;
+  border-width: 0 3px 3px 0;
+}
+
+.upload-frame-active {
+  border-color: rgba(184, 134, 61, 0.6);
+  background-color: rgba(184, 134, 61, 0.05);
+}
+
+.upload-frame-active::before,
+.upload-frame-active::after {
+  border-color: #B8860B;
+}
+
+.fraktur {
+  font-family: 'UnifrakturMaguntia', 'Old English Text MT', serif;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.sc-caps {
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+}
