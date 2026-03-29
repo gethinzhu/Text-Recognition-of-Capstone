@@ -28,92 +28,50 @@ This project aims to **train and adapt machine learning models to improve OCR ac
 * Generation of **searchable documents**
 * AI-assisted **text correction**
 
----
+## Backend (Django) – Docker Setup
 
-## Problem Statement
+### Environment Variables (.env)
 
-Many historical newspapers exist only as **scanned image archives**, which makes them difficult to analyze computationally.
+* Create a `.env` file inside:
 
-For this project, the dataset consists of **two years of weekly publications of the newspaper Der Stürmer**, where each issue typically contains **8–10 pages**.
+    * `Backend/OCR_Backend/`
 
-These documents are available primarily as **TIFF image scans**, which require OCR processing to convert them into machine-readable text.
+### Running the Backend with Docker
 
-Challenges include:
+#### Step 1: Navigate to backend folder
 
-* Low resolution historical scans
-* Multi-column newspaper layout
-* Text continuity across columns
-* Historical fonts such as **Fraktur** and **Sütterlin**
-* OCR recognition errors caused by noise and degraded print quality
+``` 
+cd Backend/OCR_Backend 
+```
 
-Existing transcription tools such as **Transkribus** produced unsatisfactory results, motivating the need for a **custom AI-based pipeline** capable of handling noisy historical data and complex newspaper layouts.
+#### Step 2: Build and start container
 
----
+```
+docker-compose up --build
+```
 
-# Dataset Description
+#### Step 3: To see if the server is running successfully, visit:
 
-The dataset used in this project consists of historical newspaper scans from **Der Stürmer**, a German newspaper published during the early 20th century.
+```
+http://localhost:8000
+```
 
-For the purpose of this capstone project, the dataset includes **two years of weekly publications**.
+#### Step 4: To Stop container
 
-### Dataset Characteristics
+```
+docker-compose down
+```
+or
 
-| Attribute             | Description |
-| --------------------- | ----------- |
-| Publication frequency | Weekly      |
-| Time span             | 2 years     |
-| Estimated issues      | ~104        |
-| Pages per issue       | 8–10 pages  |
-| Estimated total pages | ~800–1000   |
-| Image format          | TIFF        |
-| Language              | German      |
-| Primary font          | Fraktur     |
+```
+Ctrl + C
+```
 
-Each newspaper issue typically contains:
+### Running Django Commands inside Docker
 
-* Headlines
-* Multi-column articles
-* Editorial sections
-* Advertisements
-* Occasional images
+ * To execute Command inside Docker Container
 
-For research purposes, the **first 3–4 pages are considered the most important**, as they usually contain the main political and editorial content.
+```
+ docker exec -it ocr-django-backend bash
+```
 
-Advertisement pages may be **excluded from model training** as they contribute less to the research objectives.
-
----
-
-## Data Challenges
-
-Working with historical newspaper archives introduces several technical challenges.
-
-### Historical Typography
-
-The newspapers primarily use **Fraktur**, a Gothic-style typeface that differs significantly from modern Latin fonts. Additionally, some sections may contain **Sütterlin**, a handwriting-style script used in early 20th century Germany.
-
-These fonts are difficult for modern OCR systems to interpret accurately.
-
-### Noisy Historical Scans
-
-The scanned images are nearly **100 years old**, which results in:
-
-* faded ink
-* inconsistent printing quality
-* low resolution
-* visual noise
-
-These factors significantly impact text recognition performance.
-
-### Complex Newspaper Layout
-
-Each page typically contains **three columns of text**, where articles may continue across columns.
-
-The system must correctly detect:
-
-* column boundaries
-* article sections
-* reading order
-
-Accurate layout recognition is essential for reconstructing the text correctly.
-
----
