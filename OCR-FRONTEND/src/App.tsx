@@ -55,10 +55,58 @@ function Footer({ setPage }: { setPage: (id: PageId) => void }) {
   );
 }
 
+/* ── SVG Icons ── */
+const IconUpload = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+);
+
+const IconCamera = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+);
+
+const IconDocument = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+);
+
+const IconDownload = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+);
+
+const FEATURES = [
+  { icon: <IconUpload />, title: 'Multiple Input Formats', desc: 'Support for text, images (JPG, PNG, TIF), PDF, and DOCX files' },
+  { icon: <IconCamera />, title: 'Camera Capture', desc: 'Take photos directly from your device camera for instant translation' },
+  { icon: <IconDocument />, title: 'OCR Technology', desc: 'Advanced optical character recognition specifically tuned for Fraktur font' },
+  { icon: <IconDownload />, title: 'Export Options', desc: 'Download your translated text as PDF or DOCX documents' },
+];
+
+const STEPS = [
+  { num: '1', title: 'Upload Your Document', desc: 'Upload an image, PDF, DOCX file, or capture a photo with your camera' },
+  { num: '2', title: 'Automatic Translation', desc: 'Our system processes and translates the Fraktur text to modern German' },
+  { num: '3', title: 'Download Results', desc: 'Review, edit, and export your translated text as PDF or DOCX' },
+];
+
 /* ── Home hero ── */
 function HomePage({ setPage }: { setPage: (id: PageId) => void }) {
   return (
     <div className="page page--home">
+      {/* Hero */}
       <section className="hero" aria-labelledby="hero-heading">
         <div className="hero-inner">
           <h1 id="hero-heading" className="hero-heading">
@@ -77,6 +125,58 @@ function HomePage({ setPage }: { setPage: (id: PageId) => void }) {
           >
             Start Translating →
           </button>
+        </div>
+      </section>
+
+      {/* Section 1: Powerful Features */}
+      <section className="home-section features-section">
+        <div className="home-section-inner">
+          <h2 className="section-heading">Powerful Features</h2>
+          <p className="section-sub">Everything you need to translate historical German documents</p>
+          <div className="features-grid">
+            {FEATURES.map((f) => (
+              <div key={f.title} className="feature-card">
+                <div className="feature-icon-wrap">{f.icon}</div>
+                <h3 className="feature-card-title">{f.title}</h3>
+                <p className="feature-card-desc">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 2: Simple 3-Step Process */}
+      <section className="home-section steps-section">
+        <div className="home-section-inner">
+          <h2 className="section-heading">Simple 3-Step Process</h2>
+          <p className="section-sub">Get your translations in minutes</p>
+          <div className="steps-grid">
+            {STEPS.map((s) => (
+              <div key={s.num} className="step-item">
+                <div className="step-num">{s.num}</div>
+                <h3 className="step-title">{s.title}</h3>
+                <p className="step-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="steps-cta-wrap">
+            <button type="button" className="steps-cta" onClick={() => setPage('how')}>
+              Learn More →
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 3: CTA Banner */}
+      <section className="home-section cta-section-wrap">
+        <div className="home-section-inner">
+          <div className="cta-banner">
+            <h2 className="cta-banner-heading">Ready to Start Translating?</h2>
+            <p className="cta-banner-sub">Join thousands of researchers, historians, and genealogists who trust our service</p>
+            <button type="button" className="cta-banner-btn" onClick={() => setPage('translator')}>
+              Get Started Now →
+            </button>
+          </div>
         </div>
       </section>
     </div>
