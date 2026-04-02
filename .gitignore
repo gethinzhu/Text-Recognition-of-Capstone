@@ -81,3 +81,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# ========================
+# Kraken training
+# ========================
+Backend/ml_models/kraken_training/Data/
+Backend/ml_models/kraken_training/Outputs/
+
+
