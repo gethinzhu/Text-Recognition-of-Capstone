@@ -75,3 +75,58 @@ Ctrl + C
  docker exec -it ocr-django-backend bash
 ```
 
+---
+
+## Frontend (React + TypeScript + Vite) – Local Setup
+
+### Tech Stack
+
+- React 18
+- TypeScript
+- Vite
+- CSS Variables for theming
+
+### Getting Started
+
+**Step 1 — Navigate to the ocr-frontend folder:**
+```bash
+cd OCR-FRONTEND
+```
+
+**Step 2 — Install dependencies:**
+```bash
+npm install
+```
+
+**Step 3 — Start the development server:**
+```bash
+npm run dev
+```
+
+**Step 4 — Open in browser:**
+```
+http://localhost:5173
+```
+
+### Project Structure
+
+```
+OCR-FRONTEND/
+├── src/
+│   ├── App.tsx        
+│   ├── App.css        
+│   ├── main.tsx       
+│   └── index.css      
+├── tsconfig.json      
+└── public/
+```
+
+### Pages
+
+| Route | Description |
+|-------|-------------|
+| Home | Landing page |
+| Translator | Fraktur text input & translation output |
+| How It Works | Step-by-step process guide |
+| About | Project background |
+| Contact | Contact form |
