@@ -34,14 +34,14 @@ This project aims to **train and adapt machine learning models to improve OCR ac
 
 * Create a `.env` file inside:
 
-    * `Backend/OCR_Backend/`
+    * `Backend/src/`
 
 ### Running the Backend with Docker
 
 #### Step 1: Navigate to backend folder
 
 ``` 
-cd Backend/OCR_Backend 
+cd Backend/src 
 ```
 
 #### Step 2: Build and start container
