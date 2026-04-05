@@ -97,36 +97,94 @@ cd OCR-FRONTEND
 ```bash
 npm install
 ```
+ This will install all required packages listed in `package.json` into a local `node_modules` folder.
+
 
 **Step 3 — Start the development server:**
 ```bash
 npm run dev
 ```
 
+ 
+You should see output similar to:
+```
+  VITE v5.x.x  ready in 300ms
+ 
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+```
+ 
+
 **Step 4 — Open in browser:**
 ```
 http://localhost:5173
 ```
 
+---
+ 
+### Available Scripts
+ 
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Starts the local development server with hot reload |
+| `npm run build` | Builds the app for production into the `dist/` folder |
+| `npm run preview` | Previews the production build locally |
+| `npm run lint` | Runs ESLint to check for code issues |
+ 
+---
+ 
 ### Project Structure
 
 ```
 OCR-FRONTEND/
+├── public/                 # Static assets served directly
 ├── src/
-│   ├── App.tsx        
-│   ├── App.css        
-│   ├── main.tsx       
-│   └── index.css      
-├── tsconfig.json      
-└── public/
+│   ├── App.tsx             # Main app component, routing, Nav & Footer
+│   ├── App.css             # Component-level styles
+│   ├── main.tsx            # Application entry point
+│   └── index.css           # Global styles & font imports
+├── index.html              # HTML entry point
+├── tsconfig.json           # TypeScript configuration
+├── tsconfig.app.json       # TypeScript app-specific config
+├── tsconfig.node.json      # TypeScript Node-specific config
+├── vite.config.ts          # Vite configuration
+└── package.json            # Project dependencies and scripts
 ```
 
 ### Pages
-
-| Route | Description |
-|-------|-------------|
-| Home | Landing page |
-| Translator | Fraktur text input & translation output |
-| How It Works | Step-by-step process guide |
-| About | Project background |
-| Contact | Contact form |
+ 
+| Page | Route | Description |
+|------|-------|-------------|
+| Home | `/` | Landing page with project overview |
+| Translator | `/translator` | Fraktur text input & translation output |
+| How It Works | `/how` | Step-by-step process guide |
+| About | `/about` | Project and team background |
+| Contact | `/contact` | Contact form |
+ 
+---
+ 
+### Troubleshooting
+ 
+**Port already in use:**
+If `localhost:5173` is already taken, Vite will automatically try the next available port (e.g. `5174`). You can also specify a port manually:
+```bash
+npm run dev -- --port 3000
+```
+ 
+**`node_modules` missing or broken:**
+Delete the folder and reinstall:
+```bash
+rm -rf node_modules
+npm install
+```
+ 
+**TypeScript errors on startup:**
+Make sure you're using Node.js v18 or above:
+```bash
+node -v
+```
+ 
+**Dependencies out of date:**
+```bash
+npm update
+```
