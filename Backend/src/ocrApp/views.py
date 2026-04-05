@@ -27,45 +27,35 @@ class ImageUploadAndRecogniseView(View):
     """
 
     def post(self, request):
-        # Validate file present
-        if "image" not in request.FILES:
-            return JsonResponse({"image": ["This field is required."]}, status=400)
+        # Check if any files are uploaded
+        if not request.FILES:
+            return JsonResponse({"error": "No files uploaded."}, status=400)
 
-        image_file = request.FILES["image"]
+        # Get all files
+        files = request.FILES.getlist("images")
 
-        # Validate file type
-        error = validate_image_file(image_file)
-        if error:
-            return JsonResponse({"image": [error]}, status=400)
+        if not files:
+            return JsonResponse({"error": "No image files found."}, status=400)
 
-        # Save the record
-        ocr_image = OCRImage.objects.create(
-            image=image_file,
-            original_filename=image_file.name,
-        )
+        service = GeminiOCRService()
+        results = {}
 
-        # Run OCR
-        ocr_image.status = OCRImage.Status.PROCESSING
-        ocr_image.save(update_fields=["status"])
+        for file in files:
+            # Validate each file (optional)
+            error = validate_image_file(file)
+            if error:
+                results[file.name] = {"error": error}
+                continue
 
-        try:
-            service = GeminiOCRService()
-            recognised_text = service.recognise(ocr_image.image.path)
+            try:
+                # Run OCR
+                recognised_text = service.recognise(file)
+                results[file.name] = {"text": recognised_text}
 
-            ocr_image.recognised_text = recognised_text
-            ocr_image.status = OCRImage.Status.COMPLETED
-            ocr_image.save(update_fields=["recognised_text", "status", "updated_at"])
+            except Exception as exc:
+                results[file.name] = {"error": str(exc)}
 
-        except Exception as exc:
-            logger.exception("OCR processing failed for %s", ocr_image.id)
-            ocr_image.status = OCRImage.Status.FAILED
-            ocr_image.error_message = str(exc)
-            ocr_image.save(update_fields=["status", "error_message", "updated_at"])
-
-        http_status = (
-            200 if ocr_image.status == OCRImage.Status.COMPLETED else 500
-        )
-        return JsonResponse(serialize_ocr_result(ocr_image), status=http_status)
+        return JsonResponse(results, status=200)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
