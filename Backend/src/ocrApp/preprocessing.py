@@ -1,53 +1,31 @@
-import logging
-import os
-
 from PIL import Image
+from io import BytesIO
+import base64
 
-logger = logging.getLogger(__name__)
-
-
-def convert_to_jpg(source_path: str, output_dir: str | None = None) -> str:
+def convert_file_to_base64_jpg(file) -> str:
     """
-    Convert any image (especially .TIF/.TIFF) to JPG format.
-
-    If the file is already a JPG/JPEG, returns the original path unchanged.
-    Otherwise, creates a .jpg copy in *output_dir* (defaults to the same
-    directory as the source) and returns the new path.
-
-    Args:
-        source_path: Absolute path to the uploaded image file.
-        output_dir:  Directory to write the converted file into.
-                     Defaults to the same directory as *source_path*.
-
-    Returns:
-        Absolute path to the (possibly converted) JPG file.
+    Takes a Django UploadedFile (TIF/TIFF/etc),
+    converts to JPEG in memory, and returns a base64 string
+    ready to pass to OpenRouter.
     """
-    ext = os.path.splitext(source_path)[1].lower()
-
-    # Already a JPG — nothing to do
-    if ext in (".jpg", ".jpeg"):
-        return source_path
-
-    if output_dir is None:
-        output_dir = os.path.dirname(source_path)
-
-    basename = os.path.splitext(os.path.basename(source_path))[0]
-    jpg_path = os.path.join(output_dir, f"{basename}.jpg")
-
+    # Open the uploaded image
+    img = Image.open(file)
+    
+    # If multi-frame TIF, just take the first frame
     try:
-        with Image.open(source_path) as img:
-            # TIF files can be multi-page; take only the first frame
-            img.seek(0)
+        img.seek(0)
+    except EOFError:
+        pass  # single-frame image
 
-            # Convert to RGB (TIF may be CMYK, RGBA, palette, etc.)
-            if img.mode != "RGB":
-                img = img.convert("RGB")
+    # Convert to RGB if needed
+    if img.mode != "RGB":
+        img = img.convert("RGB")
 
-            img.save(jpg_path, "JPEG", quality=95)
+    # Save to BytesIO as JPEG
+    output = BytesIO()
+    img.save(output, format="JPEG", quality=95)
+    output.seek(0)
 
-        logger.info("Converted %s -> %s", source_path, jpg_path)
-        return jpg_path
-
-    except Exception as exc:
-        logger.exception("Image conversion failed for %s", source_path)
-        raise RuntimeError(f"Failed to convert image to JPG: {exc}") from exc
+    # Encode as base64 and return as data URL
+    b64 = base64.b64encode(output.read()).decode("utf-8")
+    return f"data:image/jpeg;base64,{b64}"
