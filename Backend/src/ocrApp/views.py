@@ -58,36 +58,36 @@ class ImageUploadAndRecogniseView(View):
         return JsonResponse(results, status=200)
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class OCRResultDetailView(View):
-    """
-    GET    /api/ocr/result/<uuid>/   — Retrieve a single OCR result.
-    DELETE /api/ocr/result/<uuid>/   — Delete an OCR record and its image.
-    """
+# @method_decorator(csrf_exempt, name="dispatch")
+# class OCRResultDetailView(View):
+#     """
+#     GET    /api/ocr/result/<uuid>/   — Retrieve a single OCR result.
+#     DELETE /api/ocr/result/<uuid>/   — Delete an OCR record and its image.
+#     """
 
-    def _get_object(self, pk):
-        try:
-            return OCRImage.objects.get(pk=pk)
-        except OCRImage.DoesNotExist:
-            raise Http404
+#     def _get_object(self, pk):
+#         try:
+#             return OCRImage.objects.get(pk=pk)
+#         except OCRImage.DoesNotExist:
+#             raise Http404
 
-    def get(self, request, pk):
-        ocr_image = self._get_object(pk)
-        return JsonResponse(serialize_ocr_result(ocr_image))
+#     def get(self, request, pk):
+#         ocr_image = self._get_object(pk)
+#         return JsonResponse(serialize_ocr_result(ocr_image))
 
-    def delete(self, request, pk):
-        ocr_image = self._get_object(pk)
-        ocr_image.delete()
-        return JsonResponse({}, status=204)
+#     def delete(self, request, pk):
+#         ocr_image = self._get_object(pk)
+#         ocr_image.delete()
+#         return JsonResponse({}, status=204)
 
 
-class OCRHistoryListView(View):
-    """
-    GET /api/ocr/history/
-    List all OCR records, newest first.
-    """
+# class OCRHistoryListView(View):
+#     """
+#     GET /api/ocr/history/
+#     List all OCR records, newest first.
+#     """
 
-    def get(self, request):
-        records = OCRImage.objects.all()
-        data = [serialize_ocr_history_item(r) for r in records]
-        return JsonResponse(data, safe=False)
+#     def get(self, request):
+#         records = OCRImage.objects.all()
+#         data = [serialize_ocr_history_item(r) for r in records]
+#         return JsonResponse(data, safe=False)
