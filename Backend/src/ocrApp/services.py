@@ -3,8 +3,7 @@ import logging
 import mimetypes
 import requests
 from django.conf import settings
-import google.generativeai as genai
-from .preprocessing import convert_to_jpg
+from .preprocessing import convert_file_to_base64_jpg
 
 logger = logging.getLogger(__name__)
 
@@ -28,33 +27,23 @@ class GeminiOCRService:
         self.model = settings.OPENROUTER_MODEL
         self.url = settings.OPENROUTER_BASE_URL
 
-    def recognise(self, image_path: str) -> str:
-        # Convert TIF/TIFF to JPG if needed
-        image_path = convert_to_jpg(image_path)
+    def recognise(self, file) -> str:
+        # Convert file to JPEG base64 in memory
+        image_b64 = convert_file_to_base64_jpg(file)
 
-        # Get MIME type
-        mime_type, _ = mimetypes.guess_type(image_path)
-        if mime_type is None:
-            mime_type = "image/jpeg"
-
-        # Read image bytes and encode in base64
-        with open(image_path, "rb") as f:
-            image_bytes = f.read()
-        image_b64 = base64.b64encode(image_bytes).decode("utf-8")
-
-        # Prepare payload for OpenRouter
+        # Prepare OpenRouter payload
         messages = [
             {
                 "role": "user",
                 "content": OCR_SYSTEM_PROMPT,
-                "image": f"data:{mime_type};base64,{image_b64}"
+                "image": image_b64
             }
         ]
 
         payload = {
             "model": self.model,
             "messages": messages,
-            "reasoning": {"enabled": False}  # OCR doesn’t need reasoning
+            "reasoning": {"enabled": False}  # OCR doesn't need reasoning
         }
 
         headers = {
@@ -62,11 +51,6 @@ class GeminiOCRService:
             "Content-Type": "application/json"
         }
 
-        try:
-            response = requests.post(self.url, headers=headers, json=payload)
-            response_json = response.json()
-            text = response_json['choices'][0]['message']['content']
-            return text.strip()
-        except Exception as exc:
-            logger.exception("Gemini OCR request failed for image %s", image_path)
-            raise RuntimeError(f"Gemini API error: {exc}") from exc
+        response = requests.post(self.url, headers=headers, json=payload)
+        response_json = response.json()
+        return response_json['choices'][0]['message']['content'].strip()
