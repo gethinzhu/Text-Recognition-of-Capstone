@@ -45,7 +45,7 @@ const FEATURES = [
   {
     icon: <IconUpload />,
     title: 'Flexible File Upload',
-    desc: 'Upload TIFF, JPEG, or PDF files — individually or as a batch via ZIP archive.',
+    desc: 'Upload JPEG, PNG, TIFF, BMP, or GIF files — individually or as a batch via ZIP archive.',
   },
   {
     icon: <IconAI />,
@@ -68,7 +68,7 @@ const STEPS = [
   {
     num: '1',
     title: 'Upload Your Document',
-    desc: 'Upload TIFF, JPEG, or PDF scans. Batch upload supported.',
+    desc: 'Upload JPEG, PNG, TIFF, BMP, or GIF scans. Batch upload supported.',
   },
   {
     num: '2',
