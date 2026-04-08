@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import '../css/TranslatorPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faUpload, faEraser, faLanguage } from '@fortawesome/free-solid-svg-icons';
 
- 
 type Tab = 'text' | 'file';
 
 const TABS: { id: Tab; icon: any; label: string }[] = [
@@ -13,6 +12,15 @@ const TABS: { id: Tab; icon: any; label: string }[] = [
 
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
+  const [inputText, setInputText] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleClear = () => {
+    setInputText('');
+    setSelectedFile(null);
+  };
+
+  const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFile !== null;
 
   return (
     <div className="translator-page">
@@ -38,11 +46,11 @@ export default function TranslatorPage() {
                 className={`tab-btn${activeTab === tab.id ? ' active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
               >
-                <FontAwesomeIcon icon={tab.icon} className="tab-icon"/>
+                <FontAwesomeIcon icon={tab.icon} className="tab-icon" />
                 {tab.label}
               </button>
             ))}
-          </div> 
+          </div>
 
           {/* Text Tab */}
           {activeTab === 'text' && (
@@ -51,6 +59,8 @@ export default function TranslatorPage() {
               <textarea
                 className="fraktur-textarea"
                 placeholder="Paste or type your Fraktur text here..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
               />
             </>
           )}
@@ -61,13 +71,38 @@ export default function TranslatorPage() {
               <div className="file-drop-icon">
                 <FontAwesomeIcon icon={faUpload} />
               </div>
-              <div className="file-drop-title">Drop your file here</div>
-              <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
+              {selectedFile ? (
+                <div className="file-drop-title">{selectedFile.name}</div>
+              ) : (
+                <>
+                  <div className="file-drop-title">Drop your file here</div>
+                  <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
+                </>
+              )}
               <button className="file-browse-btn">Browse Files</button>
             </div>
           )}
 
-          </div>  
+          {/* Action Buttons */}
+          <div className="input-actions">
+            <button
+              className="btn-translate"
+              disabled={!hasInput}
+            >
+              <FontAwesomeIcon icon={faLanguage} />
+              Translate
+            </button>
+            <button
+              className="btn-clear"
+              onClick={handleClear}
+              disabled={!hasInput}
+            >
+              <FontAwesomeIcon icon={faEraser} />
+              Clear
+            </button>
+          </div>
+
+        </div>
 
         {/* Output Card */}
         <div className="output-card">
@@ -79,7 +114,17 @@ export default function TranslatorPage() {
             <div className="output-empty-text">Your translated text will appear here</div>
           </div>
         </div>
-        
+
+        {/* Supported Formats Bar */}
+        <div className="formats-bar">
+          <span className="formats-bar-label">Supported Formats</span>
+          <div className="formats-chips">
+            {['JPG', 'PNG', 'TIF', 'ZIP', 'Direct Text'].map((f) => (
+              <span className="format-chip" key={f}>{f}</span>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
