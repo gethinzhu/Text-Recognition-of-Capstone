@@ -1,12 +1,9 @@
 import base64
 import logging
 import mimetypes
-
+import requests
 from django.conf import settings
-
-import google.generativeai as genai
-
-from .preprocessing import convert_to_jpg
+from .preprocessing import convert_file_to_base64_jpg
 
 logger = logging.getLogger(__name__)
 
@@ -26,51 +23,34 @@ class GeminiOCRService:
     """
 
     def __init__(self):
-        api_key = getattr(settings, "GEMINI_API_KEY", "")
-        if not api_key:
-            raise ValueError(
-                "GEMINI_API_KEY is not configured. "
-                "Please set it in your Django settings or .env file."
-            )
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-3.1-pro")
+        self.api_key = settings.OPENROUTER_API_KEY
+        self.model = settings.OPENROUTER_MODEL
+        self.url = settings.OPENROUTER_BASE_URL
 
-    def recognise(self, image_path: str) -> str:
-        """
-        Send an image to Gemini and return the recognised text.
+    def recognise(self, file) -> str:
+        # Convert file to JPEG base64 in memory
+        image_b64 = convert_file_to_base64_jpg(file)
 
-        The image is first converted to JPG (handles .TIF/.TIFF and other
-        formats) before being sent to the Gemini API.
+        # Prepare OpenRouter payload
+        messages = [
+            {
+                "role": "user",
+                "content": OCR_SYSTEM_PROMPT,
+                "image": image_b64
+            }
+        ]
 
-        Args:
-            image_path: Absolute filesystem path to the uploaded image.
-
-        Returns:
-            The recognised text extracted from the image.
-
-        Raises:
-            RuntimeError: If the Gemini API call fails.
-        """
-        # Preprocessing: convert TIF/TIFF/other formats to JPG
-        image_path = convert_to_jpg(image_path)
-
-        mime_type, _ = mimetypes.guess_type(image_path)
-        if mime_type is None:
-            mime_type = "image/jpeg"
-
-        with open(image_path, "rb") as f:
-            image_bytes = f.read()
-
-        image_data = {
-            "mime_type": mime_type,
-            "data": base64.b64encode(image_bytes).decode("utf-8"),
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "reasoning": {"enabled": False}  # OCR doesn't need reasoning
         }
 
-        try:
-            response = self.model.generate_content(
-                [OCR_SYSTEM_PROMPT, image_data],
-            )
-            return response.text.strip()
-        except Exception as exc:
-            logger.exception("Gemini OCR request failed")
-            raise RuntimeError(f"Gemini API error: {exc}") from exc
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(self.url, headers=headers, json=payload)
+        response_json = response.json()
+        return response_json['choices'][0]['message']['content'].strip()

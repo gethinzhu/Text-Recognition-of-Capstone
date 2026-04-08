@@ -126,5 +126,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Gemini API Key (loaded from .env file)
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+# Open Router API Key (loaded from .env file)
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
+OPENROUTER_MODEL = os.environ.get('OPENROUTER_MODEL', "google/gemini-3.1-pro-preview")  # Default to a placeholder if not set
+OPENROUTER_BASE_URL = os.environ.get('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
