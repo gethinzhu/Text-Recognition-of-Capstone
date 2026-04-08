@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import RecognisePage from './pages/RecognisePage';
+import TranslatorPage from './pages/TranslatorPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
@@ -14,7 +14,7 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/"             element={<HomePage />} />
-        <Route path="/recognise"    element={<RecognisePage />} />
+        <Route path="/translator"    element={<TranslatorPage/>} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/about"        element={<AboutPage />} />
         <Route path="/contact"      element={<ContactPage />} />

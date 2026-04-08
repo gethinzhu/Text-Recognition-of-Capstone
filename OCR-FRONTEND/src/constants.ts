@@ -7,7 +7,7 @@ export type NavLinkItem = {
 
 export const NAV_LINKS: NavLinkItem[] = [
   { label: 'Home',          path: '/',             end: true },
-  { label: 'Recognise',     path: '/recognise',    cta: true },
+  { label: 'Translator',    path: '/translator',   cta: true },
   { label: 'How It Works',  path: '/how-it-works' },
   { label: 'About',         path: '/about' },
   { label: 'Contact',       path: '/contact' },
