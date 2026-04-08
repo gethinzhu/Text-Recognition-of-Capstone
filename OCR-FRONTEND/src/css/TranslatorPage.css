@@ -30,7 +30,7 @@
 }
 
 .translator-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 700;
   color: var(--text-h);
@@ -181,7 +181,7 @@
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   padding: 16px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 15px;
   color: #1a1a2e;
   resize: vertical;
