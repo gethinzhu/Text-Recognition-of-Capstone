@@ -150,18 +150,37 @@ http://localhost:5173
 
 ```
 OCR-FRONTEND/
-├── public/                 # Static assets served directly
 ├── src/
-│   ├── App.tsx             # Main app component, routing, Nav & Footer
-│   ├── App.css             # Component-level styles
-│   ├── main.tsx            # Application entry point
-│   └── index.css           # Global styles & font imports
-├── index.html              # HTML entry point
-├── tsconfig.json           # TypeScript configuration
-├── tsconfig.app.json       # TypeScript app-specific config
-├── tsconfig.node.json      # TypeScript Node-specific config
-├── vite.config.ts          # Vite configuration
-└── package.json            # Project dependencies and scripts
+│   ├── components/           # Reusable UI components
+│   │   ├── FeatureCard.tsx
+│   │   ├── Footer.tsx
+│   │   └── Navbar.tsx
+│   │
+│   ├── pages/                # Page-level components (routes)
+│   │   ├── HomePage.tsx
+│   │   ├── TranslatorPage.tsx
+│   │   ├── HowItWorksPage.tsx
+│   │   ├── AboutPage.tsx
+│   │   └── ContactPage.tsx
+│   │
+│   ├── css/                  # Page-specific styles
+│   │   └── TranslatorPage.css
+│   │   ├── HowItWorksPage.css
+│   │   ├── AboutPage.css
+│   │   └── ContactPage.css
+│   │
+│   ├── App.tsx               # Main app component (routing, layout)
+│   ├── App.css               # Global/component styles
+│   ├── main.tsx              # Entry point (React DOM render)
+│   ├── index.css             # Global styles & font imports
+│   └── constants.ts          # App-wide constants/config
+│
+├── index.html                # HTML template
+├── package.json              # Dependencies & scripts
+├── vite.config.ts            # Vite configuration
+├── tsconfig.json             # Base TypeScript config
+├── tsconfig.app.json         # App-specific TS config
+├── tsconfig.node.json        # Node-specific TS config
 ```
 
 ### Pages
@@ -170,7 +189,7 @@ OCR-FRONTEND/
 |------|-------|-------------|
 | Home | `/` | Landing page with project overview |
 | Translator | `/translator` | Fraktur text input & translation output |
-| How It Works | `/how` | Step-by-step process guide |
+| How It Works | `/how-it-works` | Step-by-step process guide |
 | About | `/about` | Project and team background |
 | Contact | `/contact` | Contact form |
  

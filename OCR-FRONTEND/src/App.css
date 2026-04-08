@@ -109,7 +109,7 @@
 }
 
 .hero-heading {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(2.25rem, 5.5vw, 3.5rem);
   font-weight: 700;
   color: #0f172a;
@@ -246,7 +246,7 @@
 }
 
 .section-heading {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   color: #1a1a2e;
@@ -302,7 +302,7 @@
 }
 
 .feature-card-title {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #1a1a2e;
@@ -347,12 +347,12 @@
   color: #ffffff;
   font-size: 1.1rem;
   font-weight: 700;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   flex-shrink: 0;
 }
 
 .step-title {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #1a1a2e;
@@ -407,7 +407,7 @@
 }
 
 .cta-banner-heading {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: #ffffff;
