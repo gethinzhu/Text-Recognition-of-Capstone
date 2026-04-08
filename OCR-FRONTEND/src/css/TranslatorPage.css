@@ -1,0 +1,55 @@
+/* ── Translator Page Shell ── */
+.translator-page {
+  padding-top: 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.translator-container {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 60px 40px 80px;
+  flex: 1;
+}
+
+/* ── Header ── */
+.translator-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.translator-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.translator-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  color: var(--text-h);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.translator-subtitle {
+  font-size: 16px;
+  color: var(--text-2);
+  font-weight: 300;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .translator-container {
+    padding: 40px 20px 60px;
+  }
+}
