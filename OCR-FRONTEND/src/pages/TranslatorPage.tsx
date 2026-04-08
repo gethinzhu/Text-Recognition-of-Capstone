@@ -62,7 +62,7 @@ export default function TranslatorPage() {
                 <FontAwesomeIcon icon={faUpload} />
               </div>
               <div className="file-drop-title">Drop your file here</div>
-              <div className="file-drop-desc">JPG, PNG, TIF, PDF, DOCX — up to 10MB</div>
+              <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
               <button className="file-browse-btn">Browse Files</button>
             </div>
           )}

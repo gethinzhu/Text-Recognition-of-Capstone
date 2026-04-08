@@ -70,7 +70,7 @@
   font-weight: 500;
 }
 
-.nav-link.cta:hover { filter: brightness(1.1); }
+.nav-link.cta:hover { background: #d6c7b0; color: #1a1208; opacity: 1;}
 
 /* ── PAGE SHELL ── */
 .page {

@@ -102,7 +102,7 @@ export default function HomePage() {
           <button
             type="button"
             className="hero-cta"
-            onClick={() => navigate('/recognise')}
+            onClick={() => navigate('/translator')}
           >
             Upload Your Scans →
           </button>
@@ -150,7 +150,7 @@ export default function HomePage() {
           <div className="cta-banner">
             <h2 className="cta-banner-heading">Your Archive, Finally Searchable.</h2>
             <p className="cta-banner-sub">Designed for researchers who work with historical Fraktur-printed sources.</p>
-            <button type="button" className="cta-banner-btn" onClick={() => navigate('/recognise')}>
+            <button type="button" className="cta-banner-btn" onClick={() => navigate('/translator')}>
               Get Started →
             </button>
           </div>
