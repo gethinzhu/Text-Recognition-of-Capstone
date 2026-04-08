@@ -192,6 +192,51 @@
   background: #2d2d4e;
 }
  
+
+ 
+/* ── Output Card ── */
+.output-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+ 
+.output-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+ 
+.output-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 0;
+}
+ 
+.output-empty-icon {
+  font-size: 36px;
+  color: #d1d5db;
+}
+ 
+.output-empty-text {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 300;
+}
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .translator-container {

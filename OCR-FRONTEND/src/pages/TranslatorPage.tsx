@@ -69,6 +69,17 @@ export default function TranslatorPage() {
 
           </div>  
 
+        {/* Output Card */}
+        <div className="output-card">
+          <div className="output-card-title">Translation Output</div>
+          <div className="output-empty">
+            <div className="output-empty-icon">
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </div>
+            <div className="output-empty-text">Your translated text will appear here</div>
+          </div>
+        </div>
+        
       </div>
     </div>
   );
