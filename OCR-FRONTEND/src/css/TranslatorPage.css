@@ -47,9 +47,159 @@
   line-height: 1.6;
 }
 
+/* ── Input Card ── */
+.input-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+}
+ 
+.input-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+ 
+/* ── Tab Bar ── */
+.tab-bar {
+  display: flex;
+  gap: 2px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 3px;
+  width: fit-content;
+  margin-bottom: 24px;
+}
+ 
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+ 
+.tab-btn.active {
+  background: #ffffff;
+  color: #1a1a2e;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+ 
+.tab-btn:hover:not(.active) {
+  color: #1a1a2e;
+}
+ 
+/* ── Text Input ── */
+.input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+ 
+.fraktur-textarea {
+  width: 100%;
+  min-height: 200px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  color: #1a1a2e;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
+ 
+.fraktur-textarea::placeholder {
+  color: #9ca3af;
+}
+ 
+.fraktur-textarea:focus {
+  border-color: #1a1a2e;
+  background: #ffffff;
+}
+ 
+/* ── File Drop Zone ── */
+.file-drop-zone {
+  border: 2px dashed #e5e7eb;
+  border-radius: 10px;
+  padding: 48px 24px;
+  text-align: center;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+ 
+.file-drop-zone:hover {
+  border-color: #1a1a2e;
+  background: #f3f4f6;
+}
+ 
+.file-drop-icon {
+  font-size: 36px;
+  margin-bottom: 4px;
+}
+ 
+.file-drop-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+ 
+.file-drop-desc {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 300;
+}
+ 
+.file-browse-btn {
+  margin-top: 8px;
+  padding: 10px 24px;
+  background: #1a1a2e;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+ 
+.file-browse-btn:hover {
+  background: #2d2d4e;
+}
+ 
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .translator-container {
     padding: 40px 20px 60px;
   }
+ 
+  .tab-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }  
 }
