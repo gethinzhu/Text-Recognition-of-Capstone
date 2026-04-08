@@ -9,8 +9,8 @@ urlpatterns = [
     path("upload/", views.ImageUploadAndRecogniseView.as_view(), name="upload"),
 
     # Get or delete a single OCR result
-    path("result/<uuid:pk>/", views.OCRResultDetailView.as_view(), name="result-detail"),
+    # path("result/<uuid:pk>/", views.OCRResultDetailView.as_view(), name="result-detail"),
 
-    # List all OCR history records
-    path("history/", views.OCRHistoryListView.as_view(), name="history-list"),
+    # # List all OCR history records
+    # path("history/", views.OCRHistoryListView.as_view(), name="history-list"),
 ]
