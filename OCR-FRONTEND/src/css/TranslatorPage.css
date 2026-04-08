@@ -30,7 +30,7 @@
 }
 
 .translator-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 700;
   color: var(--text-h);
@@ -47,7 +47,69 @@
   line-height: 1.6;
 }
 
-/* ── Input Card ── */
+/* ── Side-by-side Panels ── */
+.translator-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 60px 40px 80px;
+  flex: 1;
+}
+
+.translator-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+/* ── Output Panel ── */
+.output-panel {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 0;
+}
+
+.output-empty-icon {
+  font-size: 40px;
+  color: #d1d5db;
+}
+
+.output-empty-text {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 300;
+}
+
+
 .input-card {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -56,7 +118,7 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
   margin-bottom: 20px;
 }
- 
+
 .input-card-title {
   font-size: 13px;
   font-weight: 600;
@@ -65,7 +127,7 @@
   text-transform: uppercase;
   margin-bottom: 20px;
 }
- 
+
 /* ── Tab Bar ── */
 .tab-bar {
   display: flex;
@@ -76,7 +138,7 @@
   width: fit-content;
   margin-bottom: 24px;
 }
- 
+
 .tab-btn {
   display: flex;
   align-items: center;
@@ -92,17 +154,17 @@
   font-family: inherit;
   transition: color 0.2s, background 0.2s, box-shadow 0.2s;
 }
- 
+
 .tab-btn.active {
   background: #ffffff;
   color: #1a1a2e;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
- 
+
 .tab-btn:hover:not(.active) {
   color: #1a1a2e;
 }
- 
+
 /* ── Text Input ── */
 .input-label {
   font-size: 13px;
@@ -111,7 +173,7 @@
   margin-bottom: 10px;
   letter-spacing: 0.04em;
 }
- 
+
 .fraktur-textarea {
   width: 100%;
   min-height: 200px;
@@ -119,7 +181,7 @@
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   padding: 16px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 15px;
   color: #1a1a2e;
   resize: vertical;
@@ -127,16 +189,16 @@
   transition: border-color 0.2s;
   line-height: 1.6;
 }
- 
+
 .fraktur-textarea::placeholder {
   color: #9ca3af;
 }
- 
+
 .fraktur-textarea:focus {
   border-color: #1a1a2e;
   background: #ffffff;
 }
- 
+
 /* ── File Drop Zone ── */
 .file-drop-zone {
   border: 2px dashed #e5e7eb;
@@ -151,29 +213,29 @@
   transition: border-color 0.2s, background 0.2s;
   cursor: pointer;
 }
- 
+
 .file-drop-zone:hover {
   border-color: #1a1a2e;
   background: #f3f4f6;
 }
- 
+
 .file-drop-icon {
   font-size: 36px;
   margin-bottom: 4px;
 }
- 
+
 .file-drop-title {
   font-size: 15px;
   font-weight: 600;
   color: #1a1a2e;
 }
- 
+
 .file-drop-desc {
   font-size: 13px;
   color: #9ca3af;
   font-weight: 300;
 }
- 
+
 .file-browse-btn {
   margin-top: 8px;
   padding: 10px 24px;
@@ -187,13 +249,12 @@
   cursor: pointer;
   transition: background 0.2s;
 }
- 
+
 .file-browse-btn:hover {
   background: #2d2d4e;
 }
- 
 
- 
+
 /* ── Output Card ── */
 .output-card {
   background: #ffffff;
@@ -206,7 +267,7 @@
   display: flex;
   flex-direction: column;
 }
- 
+
 .output-card-title {
   font-size: 13px;
   font-weight: 600;
@@ -214,27 +275,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 20px;
-}
- 
-.output-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 32px 0;
-}
- 
-.output-empty-icon {
-  font-size: 36px;
-  color: #d1d5db;
-}
- 
-.output-empty-text {
-  font-size: 14px;
-  color: #9ca3af;
-  font-weight: 300;
 }
 
 /* ── Action Buttons ── */
@@ -244,7 +284,7 @@
   gap: 12px;
   margin-top: 16px;
 }
- 
+
 .btn-translate {
   display: flex;
   align-items: center;
@@ -260,17 +300,17 @@
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
 }
- 
+
 .btn-translate:hover:not(:disabled) {
   background: #2d2d4e;
   transform: translateY(-1px);
 }
- 
+
 .btn-translate:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
- 
+
 .btn-clear {
   display: flex;
   align-items: center;
@@ -286,17 +326,17 @@
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
- 
+
 .btn-clear:hover:not(:disabled) {
   border-color: #1a1a2e;
   color: #1a1a2e;
 }
- 
+
 .btn-clear:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
- 
+
 /* ── Formats Bar ── */
 .formats-bar {
   background: #ffffff;
@@ -309,20 +349,20 @@
   flex-wrap: wrap;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
- 
+
 .formats-bar-label {
   font-size: 13px;
   font-weight: 600;
   color: #374151;
   white-space: nowrap;
 }
- 
+
 .formats-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
- 
+
 .format-chip {
   background: #f3f4f6;
   color: #374151;
@@ -333,13 +373,19 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 900px) {
+  .translator-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 700px) {
   .translator-container {
     padding: 40px 20px 60px;
   }
- 
+
   .tab-btn {
     padding: 8px 14px;
     font-size: 13px;
-  }  
+  }
 }

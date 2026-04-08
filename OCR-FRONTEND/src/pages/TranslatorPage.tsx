@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../css/TranslatorPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faUpload, faEraser, faLanguage } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faUpload, faEraser, faLanguage, faFileLines } from '@fortawesome/free-solid-svg-icons';
 
 type Tab = 'text' | 'file';
 
@@ -34,85 +34,82 @@ export default function TranslatorPage() {
           </p>
         </div>
 
-        {/* Input Card */}
-        <div className="input-card">
-          <div className="input-card-title">Input</div>
+        {/* Side by side panel */}
+        <div className="translator-panels">
 
-          {/* Tab Bar */}
-          <div className="tab-bar">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                className={`tab-btn${activeTab === tab.id ? ' active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <FontAwesomeIcon icon={tab.icon} className="tab-icon" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {/* Left — Input Panel */}
+          <div className="panel input-panel">
+            <div className="panel-title">Input</div>
 
-          {/* Text Tab */}
-          {activeTab === 'text' && (
-            <>
-              <div className="input-label">Enter Fraktur Text</div>
-              <textarea
-                className="fraktur-textarea"
-                placeholder="Paste or type your Fraktur text here..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-              />
-            </>
-          )}
+            {/* Tab Bar */}
+            <div className="tab-bar">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`tab-btn${activeTab === tab.id ? ' active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <FontAwesomeIcon icon={tab.icon} className="tab-icon" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-          {/* File Tab */}
-          {activeTab === 'file' && (
-            <div className="file-drop-zone">
-              <div className="file-drop-icon">
-                <FontAwesomeIcon icon={faUpload} />
+            {/* Text Tab */}
+            {activeTab === 'text' && (
+              <>
+                <div className="input-label">Enter Fraktur Text</div>
+                <textarea
+                  className="fraktur-textarea"
+                  placeholder="Paste or type your Fraktur text here..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                />
+              </>
+            )}
+
+            {/* File Tab */}
+            {activeTab === 'file' && (
+              <div className="file-drop-zone">
+                <div className="file-drop-icon">
+                  <FontAwesomeIcon icon={faUpload} />
+                </div>
+                {selectedFile ? (
+                  <div className="file-drop-title">{selectedFile.name}</div>
+                ) : (
+                  <>
+                    <div className="file-drop-title">Click to upload or drag and drop</div>
+                    <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
+                  </>
+                )}
+                <button className="file-browse-btn">Select File</button>
               </div>
-              {selectedFile ? (
-                <div className="file-drop-title">{selectedFile.name}</div>
-              ) : (
-                <>
-                  <div className="file-drop-title">Drop your file here</div>
-                  <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
-                </>
-              )}
-              <button className="file-browse-btn">Browse Files</button>
-            </div>
-          )}
+            )}
 
-          {/* Action Buttons */}
-          <div className="input-actions">
-            <button
-              className="btn-translate"
-              disabled={!hasInput}
-            >
-              <FontAwesomeIcon icon={faLanguage} />
-              Translate
-            </button>
-            <button
-              className="btn-clear"
-              onClick={handleClear}
-              disabled={!hasInput}
-            >
-              <FontAwesomeIcon icon={faEraser} />
-              Clear
-            </button>
+            {/* Action Buttons */}
+            <div className="input-actions">
+              <button className="btn-translate" disabled={!hasInput}>
+                <FontAwesomeIcon icon={faLanguage} />
+                {activeTab === 'file' ? 'Process & Translate' : 'Translate'}
+              </button>
+              <button className="btn-clear" onClick={handleClear} disabled={!hasInput}>
+                <FontAwesomeIcon icon={faEraser} />
+                Clear
+              </button>
+            </div>
           </div>
 
-        </div>
-
-        {/* Output Card */}
-        <div className="output-card">
-          <div className="output-card-title">Translation Output</div>
-          <div className="output-empty">
-            <div className="output-empty-icon">
-              <FontAwesomeIcon icon={faPenToSquare} />
+          {/* Right — Output Panel */}
+          <div className="panel output-panel">
+            <div className="panel-title">Translation Output</div>
+            <div className="output-empty">
+              <div className="output-empty-icon">
+                <FontAwesomeIcon icon={faFileLines} />
+              </div>
+              <div className="output-empty-text">Your translated text will appear here</div>
             </div>
-            <div className="output-empty-text">Your translated text will appear here</div>
           </div>
+
         </div>
 
         {/* Supported Formats Bar */}
