@@ -33,12 +33,22 @@ class GeminiOCRService:
 
         # Prepare OpenRouter payload
         messages = [
-            {
-                "role": "user",
-                "content": OCR_SYSTEM_PROMPT,
-                "image": image_b64
-            }
-        ]
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": OCR_SYSTEM_PROMPT
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_b64}"
+                            }
+                        }
+                    ]
+                }
+            ]
 
         payload = {
             "model": self.model,
@@ -52,5 +62,13 @@ class GeminiOCRService:
         }
 
         response = requests.post(self.url, headers=headers, json=payload)
+
+        if response.status_code != 200:
+            raise Exception(f"API request failed: {response.text}")
+
         response_json = response.json()
+
+        if "choices" not in response_json:
+            raise Exception(f"Invalid API response: {response_json}")
+
         return response_json['choices'][0]['message']['content'].strip()
