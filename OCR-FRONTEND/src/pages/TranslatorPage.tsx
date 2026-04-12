@@ -2,6 +2,7 @@ import { useState } from 'react';
 import '../css/TranslatorPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faUpload, faEraser, faLanguage, faFileLines } from '@fortawesome/free-solid-svg-icons';
+import { handleTranslate } from '../api';
 
 type Tab = 'text' | 'file';
 
@@ -14,10 +15,15 @@ export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [outputText, setOutputText] = useState<string | null>(null);
 
   const handleClear = () => {
     setInputText('');
     setSelectedFile(null);
+    setOutputText(null);
+    setError(null);
   };
 
   const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFile !== null;
@@ -71,26 +77,70 @@ export default function TranslatorPage() {
             {/* File Tab */}
             {activeTab === 'file' && (
               <div className="file-drop-zone">
-                <div className="file-drop-icon">
-                  <FontAwesomeIcon icon={faUpload} />
-                </div>
-                {selectedFile ? (
-                  <div className="file-drop-title">{selectedFile.name}</div>
-                ) : (
-                  <>
-                    <div className="file-drop-title">Click to upload or drag and drop</div>
-                    <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
-                  </>
-                )}
-                <button className="file-browse-btn">Select File</button>
+              <div className="file-drop-icon">
+                <FontAwesomeIcon icon={faUpload} />
+              </div>
+              {selectedFile ? (
+                <div className="file-drop-title">{selectedFile.name}</div>
+              ) : (
+                <>
+                <div className="file-drop-title">Click to upload or drag and drop</div>
+                <div className="file-drop-desc">JPG, PNG, TIF, Folder(ZIP)</div>
+                </>
+              )}
+              <input
+              type="file"
+              id="file-input"
+              style={{ display: 'none' }}
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              accept=".jpg,.jpeg,.png,.tif,.tiff,.zip"
+              />
+              <label htmlFor="file-input" style={{ display: 'none' }} />
+              <button 
+              className="file-browse-btn" 
+              onClick={() => document.getElementById('file-input')?.click()}
+              >
+              Select File
+              </button>
               </div>
             )}
 
             {/* Action Buttons */}
             <div className="input-actions">
-              <button className="btn-translate" disabled={!hasInput}>
-                <FontAwesomeIcon icon={faLanguage} />
-                {activeTab === 'file' ? 'Process & Translate' : 'Translate'}
+              <button 
+              className="btn-translate" 
+              disabled={!hasInput || loading}
+              onClick={async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                  const result = await handleTranslate({
+                    type: activeTab,
+                    data: activeTab === 'text' ? inputText : selectedFile!
+                  });
+                  
+                  // Extract the first result (single file sent)
+                  const firstKey = Object.keys(result)[0];
+                  const firstResult = result[firstKey];
+                  
+                  if (firstResult.error) {
+                    setError(firstResult.error);
+                  } else if (firstResult.status === 'failed' && firstResult.error) {
+                    setError(firstResult.error);
+                  } else if (firstResult.status === 'completed' && firstResult.text) {
+                    setOutputText(firstResult.text);
+                  } else if (firstResult.text) {
+                    // Fallback for responses without status field
+                    setOutputText(firstResult.text);
+                  }
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Unknown error occurred');
+                }
+                setLoading(false);
+              }}
+              >
+              <FontAwesomeIcon icon={faLanguage} />
+              {loading ? 'Processing...' : (activeTab === 'file' ? 'Process & Translate' : 'Translate')}
               </button>
               <button className="btn-clear" onClick={handleClear} disabled={!hasInput}>
                 <FontAwesomeIcon icon={faEraser} />

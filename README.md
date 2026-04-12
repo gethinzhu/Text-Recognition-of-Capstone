@@ -34,8 +34,21 @@ This project aims to **train and adapt machine learning models to improve OCR ac
 
 * Create a `.env` file inside:
 
-    * `Backend/src/`
+  * `Backend/src/`
 
+* Add the following required environment variables:
+
+```env
+# Django Settings
+DEBUG=True
+DJANGO_SECRET_KEY=DjangoKey (Shared)
+
+# Open Router API configuration
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=google/gemini-3.1-pro-preview
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+
+```
 ### Running the Backend with Docker
 
 #### Step 1: Navigate to backend folder
