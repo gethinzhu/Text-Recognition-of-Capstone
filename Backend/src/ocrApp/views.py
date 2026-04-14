@@ -41,6 +41,8 @@ class ImageUploadAndRecogniseView(View):
         results = {}
 
         for file in files:
+
+            file.seek(0) 
             # Validate each file (optional)
             error = validate_image_file(file)
             if error:
