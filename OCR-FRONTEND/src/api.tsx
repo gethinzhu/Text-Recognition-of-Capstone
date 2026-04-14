@@ -16,47 +16,57 @@ export interface TranslateResponse {
  */
 export async function handleTranslate(params: {
   type: 'text' | 'file';
-  data: string | File;
+  data: string | File | File[];
 }): Promise<TranslateResponse> {
   try {
     const { type, data } = params;
 
-    // Determine the file to send
-    let fileToSend: File;
+    const formData = new FormData();
 
+    // TEXT INPUT
     if (type === 'text' && typeof data === 'string') {
-      // Convert text to a File object
-      fileToSend = new File([data], 'text-input.txt', { type: 'text/plain' });
-    } else if (type === 'file' && data instanceof File) {
-      // Validate file type for images and zip files
+      const file = new File([data], 'text-input.txt', { type: 'text/plain' });
+      formData.append('images', file);
+    }
+
+    // FILE INPUT (single OR multiple)
+    else if (type === 'file') {
+
+      const files = (Array.isArray(data) ? data : [data]) as File[];
+
       const allowedTypes = [
         'image/jpeg', 'image/png', 'image/tiff', 'image/bmp', 'image/gif',
         'application/zip', 'application/x-zip-compressed'
       ];
+
       const allowedExtensions = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.zip'];
 
-      const fileExtension = data.name.toLowerCase().substring(data.name.lastIndexOf('.'));
-      const isValidType = allowedTypes.includes(data.type) || allowedExtensions.includes(fileExtension);
+      files.forEach((file) => {
+        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
 
-      if (!isValidType) {
-        throw new Error(`Unsupported file type. Allowed: JPEG, PNG, TIFF, BMP, GIF, ZIP`);
-      }
+        const isValidType =
+          allowedTypes.includes(file.type) ||
+          allowedExtensions.includes(fileExtension);
 
-      // Use the file directly (could be image or zip)
-      fileToSend = data;
-    } else {
-      throw new Error(`Invalid input: type='${type}' should match data type`);
+        if (!isValidType) {
+          throw new Error(
+            `Unsupported file type (${file.name}). Allowed: JPEG, PNG, TIFF, BMP, GIF, ZIP`
+          );
+        }
+
+        // append each file
+        formData.append('images', file);
+      });
     }
 
-    // Create FormData and append file
-    const formData = new FormData();
-    formData.append('images', fileToSend);
+    else {
+      throw new Error(`Invalid input: type='${type}' does not match data`);
+    }
 
-    // Send POST request to backend
+    // API CALL
     const response = await fetch(`${API_BASE_URL}/upload/`, {
       method: 'POST',
       body: formData,
-      // Don't set Content-Type, let the browser set it with the boundary
     });
 
     if (!response.ok) {
@@ -65,8 +75,10 @@ export async function handleTranslate(params: {
 
     const result: TranslateResponse = await response.json();
     return result;
+
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to translate: ${errorMessage}`);
   }
 }
