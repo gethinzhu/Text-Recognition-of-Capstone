@@ -7,18 +7,29 @@ ALLOWED_IMAGE_TYPES = {
     "image/gif",
 }
 
+ALLOWED_ZIP_TYPES = {
+    "application/zip",
+    "application/x-zip-compressed",
+}
+
 
 def validate_image_file(image_file):
     """
     Validate the uploaded file is an allowed image type.
     Returns an error string if invalid, or None if valid.
     """
-    if image_file.content_type not in ALLOWED_IMAGE_TYPES:
-        return (
-            f"Unsupported file type '{image_file.content_type}'. "
-            f"Allowed types: JPEG, PNG, TIFF, BMP, GIF."
-        )
-    return None
+    content_type = image_file.content_type
+
+    if content_type in ALLOWED_IMAGE_TYPES:
+        return None
+
+    if content_type in ALLOWED_ZIP_TYPES:
+        return None
+
+    return (
+        f"Unsupported file type '{content_type}'. "
+        f"Allowed types: images (JPEG, PNG, TIFF, BMP, GIF) or ZIP files."
+    )
 
 
 def serialize_ocr_result(ocr_image):
