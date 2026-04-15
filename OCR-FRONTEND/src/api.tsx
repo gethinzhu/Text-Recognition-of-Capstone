@@ -1,6 +1,23 @@
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/ocr';
 
+export interface CreditsResponse {
+  total_credits: number;
+  total_usage: number;
+  remaining: number;
+}
+
+/**
+ * Fetch remaining OpenRouter credits from the backend proxy.
+ */
+export async function getCredits(): Promise<CreditsResponse> {
+  const response = await fetch(`${API_BASE_URL}/credits/`);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export interface TranslateResponse {
   [filename: string]: {
     text?: string;

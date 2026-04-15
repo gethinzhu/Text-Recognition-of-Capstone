@@ -72,6 +72,32 @@
 
 .nav-link.cta:hover { background: #d6c7b0; color: #1a1208; opacity: 1;}
 
+.nav-credits {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+.nav-credits-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px #4ade80aa;
+}
+
 /* ── PAGE SHELL ── */
 .page {
   padding-top: 64px;
