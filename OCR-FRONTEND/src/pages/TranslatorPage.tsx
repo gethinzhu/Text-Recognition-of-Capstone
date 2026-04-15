@@ -14,19 +14,19 @@ const TABS: { id: Tab; icon: any; label: string }[] = [
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outputText, setOutputText] = useState<string | null>(null);
 
   const handleClear = () => {
     setInputText('');
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setOutputText(null);
     setError(null);
   };
 
-  const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFile !== null;
+  const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFiles.length > 0;
 
   return (
     <div className="translator-page">
@@ -80,8 +80,10 @@ export default function TranslatorPage() {
               <div className="file-drop-icon">
                 <FontAwesomeIcon icon={faUpload} />
               </div>
-              {selectedFile ? (
-                <div className="file-drop-title">{selectedFile.name}</div>
+              {selectedFiles.length > 0 ? (
+              <div className="file-drop-title">
+                {selectedFiles.map(f => f.name).join(', ')}
+              </div>
               ) : (
                 <>
                 <div className="file-drop-title">Click to upload or drag and drop</div>
@@ -92,7 +94,8 @@ export default function TranslatorPage() {
               type="file"
               id="file-input"
               style={{ display: 'none' }}
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              multiple
+              onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
               accept=".jpg,.jpeg,.png,.tif,.tiff,.zip"
               />
               <label htmlFor="file-input" style={{ display: 'none' }} />
@@ -116,8 +119,10 @@ export default function TranslatorPage() {
                 try {
                   const result = await handleTranslate({
                     type: activeTab,
-                    data: activeTab === 'text' ? inputText : selectedFile!
+                    data: activeTab === 'text' ? inputText : selectedFiles
                   });
+
+                  console.log('Translation API response:', result);
                   
                   // Extract the first result (single file sent)
                   const firstKey = Object.keys(result)[0];

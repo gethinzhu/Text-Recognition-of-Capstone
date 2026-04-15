@@ -1,4 +1,6 @@
-import json
+import zipfile
+import tempfile
+import os
 import logging
 
 import requests
@@ -8,7 +10,6 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from .models import OCRImage
 from .serializers import (
     ALLOWED_IMAGE_TYPES,
     serialize_ocr_result,
@@ -22,18 +23,13 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class ImageUploadAndRecogniseView(View):
-    """
-    POST /api/ocr/upload/
-    Upload a newspaper image and run OCR via Gemini.
-    Returns the recognised text in the response.
-    """
 
     def post(self, request):
+
         # Check if any files are uploaded
         if not request.FILES:
             return JsonResponse({"error": "No files uploaded."}, status=400)
 
-        # Get all files
         files = request.FILES.getlist("images")
 
         if not files:
@@ -43,16 +39,72 @@ class ImageUploadAndRecogniseView(View):
         results = {}
 
         for file in files:
-            # Validate each file (optional)
-            error = validate_image_file(file)
-            if error:
-                results[file.name] = {"error": error}
-                continue
 
             try:
-                # Run OCR
-                recognised_text = service.recognise(file)
-                results[file.name] = {"text": recognised_text}
+                file.seek(0)
+
+                # =========================
+                # ZIP FILE HANDLING
+                # =========================
+                if file.name.lower().endswith(".zip"):
+
+                    with tempfile.TemporaryDirectory() as temp_dir:
+
+                        zip_path = os.path.join(temp_dir, file.name)
+
+                        # Save zip locally
+                        with open(zip_path, "wb") as f:
+                            for chunk in file.chunks():
+                                f.write(chunk)
+
+                        # Extract ZIP
+                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                            zip_ref.extractall(temp_dir)
+
+                            for extracted_name in zip_ref.namelist():
+
+                                extracted_path = os.path.join(temp_dir, extracted_name)
+
+                                # skip folders
+                                if not os.path.isfile(extracted_path):
+                                    continue
+
+                                # optional: filter only images
+                                if not extracted_name.lower().endswith(
+                                    (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".gif")
+                                ):
+                                    continue
+
+                                try:
+                                    with open(extracted_path, "rb") as img_file:
+                                        img_file.seek(0)
+
+                                        recognised_text = service.recognise(img_file)
+
+                                        results[extracted_name] = {
+                                            "text": recognised_text
+                                        }
+
+                                except Exception as e:
+                                    results[extracted_name] = {
+                                        "error": str(e)
+                                    }
+
+                # =========================
+                # NORMAL IMAGE HANDLING
+                # =========================
+                else:
+
+                    error = validate_image_file(file)
+                    if error:
+                        results[file.name] = {"error": error}
+                        continue
+
+                    recognised_text = service.recognise(file)
+
+                    results[file.name] = {
+                        "text": recognised_text
+                    }
 
             except Exception as exc:
                 results[file.name] = {"error": str(exc)}
