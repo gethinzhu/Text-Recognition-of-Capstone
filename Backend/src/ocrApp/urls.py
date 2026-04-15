@@ -8,6 +8,9 @@ urlpatterns = [
     # Upload image and run OCR
     path("upload/", views.ImageUploadAndRecogniseView.as_view(), name="upload"),
 
+    # Remaining OpenRouter credits
+    path("credits/", views.CreditsView.as_view(), name="credits"),
+
     # Get or delete a single OCR result
     # path("result/<uuid:pk>/", views.OCRResultDetailView.as_view(), name="result-detail"),
 

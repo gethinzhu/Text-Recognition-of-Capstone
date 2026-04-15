@@ -2,7 +2,10 @@ import zipfile
 import tempfile
 import os
 import logging
-from django.http import JsonResponse
+
+import requests
+from django.conf import settings
+from django.http import JsonResponse, Http404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -107,6 +110,42 @@ class ImageUploadAndRecogniseView(View):
                 results[file.name] = {"error": str(exc)}
 
         return JsonResponse(results, status=200)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CreditsView(View):
+    """
+    GET /api/ocr/credits/
+    Proxy request to OpenRouter to fetch remaining account credits.
+    Returns: { "total_credits": float, "total_usage": float, "remaining": float }
+    """
+
+    def get(self, request):
+        api_key = settings.OPENROUTER_API_KEY
+        if not api_key:
+            return JsonResponse({"error": "API key not configured."}, status=500)
+
+        try:
+            response = requests.get(
+                "https://openrouter.ai/api/v1/credits",
+                headers={"Authorization": f"Bearer {api_key}"},
+                timeout=10,
+            )
+        except requests.RequestException as exc:
+            return JsonResponse({"error": f"Failed to reach OpenRouter: {exc}"}, status=502)
+
+        if response.status_code != 200:
+            return JsonResponse({"error": f"OpenRouter returned {response.status_code}"}, status=502)
+
+        data = response.json().get("data", {})
+        total_credits = data.get("total_credits", 0)
+        total_usage = data.get("total_usage", 0)
+
+        return JsonResponse({
+            "total_credits": total_credits,
+            "total_usage": total_usage,
+            "remaining": round(total_credits - total_usage, 4),
+        })
 
 
 # @method_decorator(csrf_exempt, name="dispatch")
