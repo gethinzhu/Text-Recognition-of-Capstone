@@ -17,15 +17,21 @@ def convert_file_to_base64_jpg(file) -> str:
     except EOFError:
         pass  # single-frame image
 
-    # Convert to RGB if needed
+    # Convert to RGB 
     if img.mode != "RGB":
         img = img.convert("RGB")
 
-    # Save to BytesIO as JPEG
+    # Resize to reduce payload (VERY IMPORTANT)
+    max_size = (1200, 1200)
+    img.thumbnail(max_size)
+
+    # Save as compressed JPEG
     output = BytesIO()
-    img.save(output, format="JPEG", quality=95)
+    img.save(output, format="JPEG", quality=65, optimize=True)
+
     output.seek(0)
 
-    # Encode as base64 and return as data URL
+    # Encode to base64
     b64 = base64.b64encode(output.read()).decode("utf-8")
-    return f"data:image/jpeg;base64,{b64}"
+
+    return b64
