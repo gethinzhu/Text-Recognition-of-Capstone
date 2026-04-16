@@ -324,6 +324,35 @@
   line-height: 1.5;
 }
 
+.output-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.btn-export:hover {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+  transform: translateY(-1px);
+}
+
 /* ── Action Buttons ── */
 .input-actions {
   display: flex;

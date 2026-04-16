@@ -3,6 +3,16 @@ import '../css/TranslatorPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faUpload, faEraser, faLanguage, faFileLines } from '@fortawesome/free-solid-svg-icons';
 import { handleTranslate } from '../api';
+import { jsPDF } from 'jspdf';
+import { saveAs } from 'file-saver';
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  HeadingLevel
+} from 'docx';
+import { faFilePdf, faFileWord } from '@fortawesome/free-solid-svg-icons';
 
 type Tab = 'text' | 'file';
 type OutputItem = {
@@ -30,6 +40,107 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     setOutputItems([]);
     setError(null);
   };
+
+  const buildExportText = () => {
+  return outputItems
+    .map((item) => {
+      const body = item.error ? `Error: ${item.error}` : item.text || '';
+      return `${item.fileName}\n\n${body}`;
+    })
+    .join('\n\n----------------------------------------\n\n');
+};
+
+const exportToPDF = () => {
+  if (outputItems.length === 0) return;
+
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  const maxLineWidth = pageWidth - margin * 2;
+  let y = 20;
+
+  outputItems.forEach((item, itemIndex) => {
+    const title = item.fileName;
+    const content = item.error ? `Error: ${item.error}` : item.text || '';
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    const titleLines = doc.splitTextToSize(title, maxLineWidth);
+
+    titleLines.forEach((line: string) => {
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, margin, y);
+      y += 8;
+    });
+
+    y += 2;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    const contentLines = doc.splitTextToSize(content, maxLineWidth);
+
+    contentLines.forEach((line: string) => {
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, margin, y);
+      y += 6;
+    });
+
+    if (itemIndex !== outputItems.length - 1) {
+      y += 8;
+      if (y > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+    }
+  });
+
+  doc.save('fraktur-output.pdf');
+};
+
+const exportToDocx = async () => {
+  if (outputItems.length === 0) return;
+
+  const children = outputItems.flatMap((item, index) => {
+    const content = item.error ? `Error: ${item.error}` : item.text || '';
+    const paragraphs = content
+      .split('\n')
+      .map((line) => new Paragraph({ children: [new TextRun(line || ' ')] }));
+
+    const block = [
+      new Paragraph({
+        text: item.fileName,
+        heading: HeadingLevel.HEADING_1,
+      }),
+      ...paragraphs,
+    ];
+
+    if (index !== outputItems.length - 1) {
+      block.push(new Paragraph({ text: ' ' }));
+    }
+
+    return block;
+  });
+
+  const doc = new Document({
+    sections: [
+      {
+        children,
+      },
+    ],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, 'fraktur-output.docx');
+};
 
   const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFiles.length > 0;
 
@@ -146,15 +257,19 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
                   }
                 } catch (err) {
                   setError(err instanceof Error ? err.message : 'Unknown error occurred');
-                }
-
+                } finally {
                 setLoading(false);
+                }
               }}
               >
               <FontAwesomeIcon icon={faLanguage} />
               {loading ? 'Processing...' : (activeTab === 'file' ? 'Process & Translate' : 'Translate')}
               </button>
-              <button className="btn-clear" onClick={handleClear} disabled={!hasInput}>
+              <button
+                className="btn-clear"
+                onClick={handleClear}
+                disabled={!hasInput && outputItems.length === 0 && !error}
+              >
                 <FontAwesomeIcon icon={faEraser} />
                 Clear
               </button>
@@ -164,6 +279,18 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
           {/* Right — Output Panel */}
           <div className="panel output-panel">
             <div className="panel-title">Translation Output</div>
+            {outputItems.length > 0 && !loading && (
+              <div className="output-actions">
+                <button className="btn-export pdf" onClick={exportToPDF}>
+                  <FontAwesomeIcon icon={faFilePdf} />
+                  Download PDF
+                </button>
+                <button className="btn-export docx" onClick={exportToDocx}>
+                  <FontAwesomeIcon icon={faFileWord} />
+                  Download DOCX
+                </button>
+              </div>
+            )}
             {loading ? (
               <div className="output-empty">
                 <div className="output-empty-icon">
