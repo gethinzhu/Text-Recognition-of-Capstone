@@ -5,6 +5,11 @@ import { faPenToSquare, faUpload, faEraser, faLanguage, faFileLines } from '@for
 import { handleTranslate } from '../api';
 
 type Tab = 'text' | 'file';
+type OutputItem = {
+  fileName: string;
+  text?: string;
+  error?: string;
+};
 
 const TABS: { id: Tab; icon: any; label: string }[] = [
   { id: 'text', icon: faPenToSquare, label: 'Text' },
@@ -17,12 +22,12 @@ export default function TranslatorPage() {
 const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [outputText, setOutputText] = useState<string | null>(null);
+  const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
 
   const handleClear = () => {
     setInputText('');
     setSelectedFiles([]);
-    setOutputText(null);
+    setOutputItems([]);
     setError(null);
   };
 
@@ -116,6 +121,8 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
               onClick={async () => {
                 setLoading(true);
                 setError(null);
+                setOutputItems([]);
+
                 try {
                   const result = await handleTranslate({
                     type: activeTab,
@@ -123,24 +130,24 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
                   });
 
                   console.log('Translation API response:', result);
-                  
-                  // Extract the first result (single file sent)
-                  const firstKey = Object.keys(result)[0];
-                  const firstResult = result[firstKey];
-                  
-                  if (firstResult.error) {
-                    setError(firstResult.error);
-                  } else if (firstResult.status === 'failed' && firstResult.error) {
-                    setError(firstResult.error);
-                  } else if (firstResult.status === 'completed' && firstResult.text) {
-                    setOutputText(firstResult.text);
-                  } else if (firstResult.text) {
-                    // Fallback for responses without status field
-                    setOutputText(firstResult.text);
+
+                  const formattedResults: OutputItem[] = Object.entries(result).map(
+                    ([fileName, value]: [string, any]) => ({
+                      fileName,
+                      text: value?.text,
+                      error: value?.error
+                    })
+                  );
+
+                  if (formattedResults.length === 0) {
+                    setError('No output received from server.');
+                  } else {
+                    setOutputItems(formattedResults);
                   }
                 } catch (err) {
                   setError(err instanceof Error ? err.message : 'Unknown error occurred');
                 }
+
                 setLoading(false);
               }}
               >
@@ -157,12 +164,38 @@ const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
           {/* Right — Output Panel */}
           <div className="panel output-panel">
             <div className="panel-title">Translation Output</div>
-            <div className="output-empty">
-              <div className="output-empty-icon">
-                <FontAwesomeIcon icon={faFileLines} />
+            {loading ? (
+              <div className="output-empty">
+                <div className="output-empty-icon">
+                  <FontAwesomeIcon icon={faFileLines} />
+                </div>
+                <div className="output-empty-text">Processing...</div>
               </div>
-              <div className="output-empty-text">Your translated text will appear here</div>
-            </div>
+            ) : error ? (
+              <div className="output-error">
+                {error}
+              </div>
+            ) : outputItems.length > 0 ? (
+              <div className="output-results">
+                {outputItems.map((item, index) => (
+                  <div key={index} className="output-result-card">
+                    <div className="output-file-name">{item.fileName}</div>
+                    {item.error ? (
+                      <div className="output-error-text">Error: {item.error}</div>
+                    ) : (
+                      <pre className="output-text">{item.text}</pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="output-empty">
+                <div className="output-empty-icon">
+                  <FontAwesomeIcon icon={faFileLines} />
+                </div>
+                <div className="output-empty-text">Your translated text will appear here</div>
+              </div>
+            )}
           </div>
 
         </div>
