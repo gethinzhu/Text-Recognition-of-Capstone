@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import '../css/TranslatorPage.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faUpload, faEraser, faLanguage, faFileLines } from '@fortawesome/free-solid-svg-icons';
 import { handleTranslate } from '../api';
 import { jsPDF } from 'jspdf';
 import { saveAs } from 'file-saver';
@@ -12,7 +10,16 @@ import {
   TextRun,
   HeadingLevel
 } from 'docx';
-import { faFilePdf, faFileWord } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPenToSquare,
+  faUpload,
+  faEraser,
+  faLanguage,
+  faFileLines,
+  faFilePdf,
+  faFileWord
+} from '@fortawesome/free-solid-svg-icons';
 
 type Tab = 'text' | 'file';
 type OutputItem = {
