@@ -18,7 +18,8 @@ import {
   faLanguage,
   faFileLines,
   faFilePdf,
-  faFileWord
+  faFileWord,
+  faCopy
 } from '@fortawesome/free-solid-svg-icons';
 
 type Tab = 'text' | 'file';
@@ -36,25 +37,37 @@ const TABS: { id: Tab; icon: any; label: string }[] = [
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
-const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
+  const [copied, setCopied] = useState(false);
 
   const handleClear = () => {
     setInputText('');
     setSelectedFiles([]);
     setOutputItems([]);
+    setCopied(false);
     setError(null);
   };
 
-  const buildExportText = () => {
-  return outputItems
+const copyOutputToClipboard = async () => {
+  if (outputItems.length === 0) return;
+
+  const textToCopy = outputItems
     .map((item) => {
-      const body = item.error ? `Error: ${item.error}` : item.text || '';
-      return `${item.fileName}\n\n${body}`;
+      const content = item.error ? `Error: ${item.error}` : item.text || '';
+      return `${item.fileName}\n\n${content}`;
     })
     .join('\n\n----------------------------------------\n\n');
+
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  } catch (err) {
+    setError('Failed to copy output to clipboard.');
+  }
 };
 
 const exportToPDF = () => {
@@ -288,6 +301,10 @@ const exportToDocx = async () => {
             <div className="panel-title">Translation Output</div>
             {outputItems.length > 0 && !loading && (
               <div className="output-actions">
+                <button className="btn-export copy" onClick={copyOutputToClipboard}>
+                  <FontAwesomeIcon icon={faCopy} />
+                  {copied ? 'Copied!' : 'Copy Text'}
+                </button>
                 <button className="btn-export pdf" onClick={exportToPDF}>
                   <FontAwesomeIcon icon={faFilePdf} />
                   Download PDF

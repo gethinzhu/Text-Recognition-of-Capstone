@@ -353,6 +353,10 @@
   transform: translateY(-1px);
 }
 
+.btn-export.copy {
+  min-width: 110px;
+}
+
 /* ── Action Buttons ── */
 .input-actions {
   display: flex;
