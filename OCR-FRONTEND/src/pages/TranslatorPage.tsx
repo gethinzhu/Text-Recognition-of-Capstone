@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../css/TranslatorPage.css';
 import { handleTranslate } from '../api';
 import { jsPDF } from 'jspdf';
@@ -14,6 +14,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPenToSquare,
   faUpload,
+  faCamera,
+  faStop,
+  faRotateLeft,
   faEraser,
   faLanguage,
   faFileLines,
@@ -22,7 +25,7 @@ import {
   faCopy
 } from '@fortawesome/free-solid-svg-icons';
 
-type Tab = 'text' | 'file';
+type Tab = 'text' | 'file' | 'camera';
 type OutputItem = {
   fileName: string;
   text?: string;
@@ -32,23 +35,226 @@ type OutputItem = {
 const TABS: { id: Tab; icon: any; label: string }[] = [
   { id: 'text', icon: faPenToSquare, label: 'Text' },
   { id: 'file', icon: faUpload, label: 'File' },
+  { id: 'camera', icon: faCamera, label: 'Camera' },
 ];
 
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [cameraFile, setCameraFile] = useState<File | null>(null);
+  const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
   const [copied, setCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const supportsLiveCamera =
+    typeof navigator !== 'undefined' &&
+    Boolean(navigator.mediaDevices?.getUserMedia);
+  const prefersNativeCameraCapture =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: coarse)').matches;
+
+  useEffect(() => {
+    if (!cameraFile) {
+      setCameraPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(cameraFile);
+    setCameraPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [cameraFile]);
+
+  useEffect(() => {
+    if (activeTab === 'camera' || !streamRef.current) {
+      return;
+    }
+
+    streamRef.current.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  };
 
   const handleClear = () => {
+    stopCamera();
     setInputText('');
     setSelectedFiles([]);
+    setCameraFile(null);
+    setCameraPreviewUrl(null);
+    setCameraError(null);
     setOutputItems([]);
     setCopied(false);
     setError(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
+  };
+
+  const handleFileChange = (files: FileList | null) => {
+    setSelectedFiles(Array.from(files || []));
+  };
+
+  const handleCameraFileChange = (files: FileList | null) => {
+    const photo = Array.from(files || [])[0];
+
+    if (!photo) {
+      return;
+    }
+
+    stopCamera();
+    setCameraError(null);
+    setCameraFile(photo);
+
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
+  };
+
+  const startCamera = async () => {
+    if (!supportsLiveCamera) {
+      setCameraError('Live camera preview is not supported in this browser.');
+      return;
+    }
+
+    try {
+      stopCamera();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+
+      setCameraActive(true);
+      setCameraError(null);
+    } catch (cameraAccessError) {
+      const message =
+        cameraAccessError instanceof Error
+          ? cameraAccessError.message
+          : 'Unable to access the camera.';
+
+      setCameraError(`Camera access failed: ${message}`);
+      stopCamera();
+    }
+  };
+
+  const openCameraCapture = async () => {
+    setCameraError(null);
+
+    if (prefersNativeCameraCapture && cameraInputRef.current) {
+      cameraInputRef.current.click();
+      return;
+    }
+
+    await startCamera();
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) {
+      setCameraError('Camera preview is not ready yet.');
+      return;
+    }
+
+    const width = videoRef.current.videoWidth;
+    const height = videoRef.current.videoHeight;
+
+    if (!width || !height) {
+      setCameraError('Camera preview is not ready yet.');
+      return;
+    }
+
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      setCameraError('Photo capture is not available right now.');
+      return;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      setCameraError('Could not prepare the capture canvas.');
+      return;
+    }
+
+    context.drawImage(videoRef.current, 0, 0, width, height);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setCameraError('Failed to capture the current frame.');
+          return;
+        }
+
+        setCameraFile(
+          new File([blob], `camera-capture-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+          })
+        );
+        setCameraError(null);
+        stopCamera();
+      },
+      'image/jpeg',
+      0.92
+    );
+  };
+
+  const retakePhoto = () => {
+    setCameraFile(null);
+    setCameraError(null);
   };
 
 const copyOutputToClipboard = async () => {
@@ -162,7 +368,12 @@ const exportToDocx = async () => {
   saveAs(blob, 'fraktur-output.docx');
 };
 
-  const hasInput = activeTab === 'text' ? inputText.trim().length > 0 : selectedFiles.length > 0;
+  const hasInput =
+    activeTab === 'text'
+      ? inputText.trim().length > 0
+      : activeTab === 'file'
+        ? selectedFiles.length > 0
+        : Boolean(cameraFile);
 
   return (
     <div className="translator-page">
@@ -227,20 +438,116 @@ const exportToDocx = async () => {
                 </>
               )}
               <input
+              ref={fileInputRef}
               type="file"
               id="file-input"
               style={{ display: 'none' }}
               multiple
-              onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
+              onChange={(e) => handleFileChange(e.target.files)}
               accept=".jpg,.jpeg,.png,.tif,.tiff,.zip"
               />
               <label htmlFor="file-input" style={{ display: 'none' }} />
               <button 
               className="file-browse-btn" 
-              onClick={() => document.getElementById('file-input')?.click()}
+              onClick={() => fileInputRef.current?.click()}
               >
               Select File
               </button>
+              </div>
+            )}
+
+            {activeTab === 'camera' && (
+              <div className="camera-panel">
+                <div className="input-label">Capture a scanned page photo</div>
+
+                <div className="camera-actions-row">
+                  <button
+                    type="button"
+                    className="camera-action-btn primary"
+                    onClick={openCameraCapture}
+                  >
+                    <FontAwesomeIcon icon={faCamera} />
+                    Open Camera
+                  </button>
+
+                  {cameraActive && (
+                    <button
+                      type="button"
+                      className="camera-action-btn subtle"
+                      onClick={stopCamera}
+                    >
+                      <FontAwesomeIcon icon={faStop} />
+                      Stop
+                    </button>
+                  )}
+
+                  {cameraFile && (
+                    <button
+                      type="button"
+                      className="camera-action-btn subtle"
+                      onClick={retakePhoto}
+                    >
+                      <FontAwesomeIcon icon={faRotateLeft} />
+                      Retake
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleCameraFileChange(e.target.files)}
+                />
+
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+                {cameraError && <div className="camera-error">{cameraError}</div>}
+
+                {cameraActive ? (
+                  <div className="camera-preview-card">
+                    <video
+                      ref={videoRef}
+                      className="camera-video"
+                      autoPlay
+                      muted
+                      playsInline
+                    />
+                    <div className="camera-preview-actions">
+                      <button
+                        type="button"
+                        className="file-browse-btn"
+                        onClick={capturePhoto}
+                      >
+                        <FontAwesomeIcon icon={faCamera} />
+                        Capture
+                      </button>
+                    </div>
+                  </div>
+                ) : cameraPreviewUrl ? (
+                  <div className="camera-preview-card">
+                    <img
+                      src={cameraPreviewUrl}
+                      alt="Captured preview"
+                      className="camera-image-preview"
+                    />
+                    <div className="camera-preview-meta">
+                      Ready to upload: {cameraFile?.name}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="camera-empty-state">
+                    <div className="camera-empty-icon">
+                      <FontAwesomeIcon icon={faCamera} />
+                    </div>
+                    <div className="camera-empty-title">Use your phone or webcam</div>
+                    <div className="camera-empty-text">
+                      Open Camera to take a fresh photo on mobile or desktop.
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -256,8 +563,15 @@ const exportToDocx = async () => {
 
                 try {
                   const result = await handleTranslate({
-                    type: activeTab,
-                    data: activeTab === 'text' ? inputText : selectedFiles
+                    type: activeTab === 'text' ? 'text' : 'file',
+                    data:
+                      activeTab === 'text'
+                        ? inputText
+                        : activeTab === 'file'
+                          ? selectedFiles
+                          : cameraFile
+                            ? [cameraFile]
+                            : []
                   });
 
                   console.log('Translation API response:', result);
@@ -283,12 +597,12 @@ const exportToDocx = async () => {
               }}
               >
               <FontAwesomeIcon icon={faLanguage} />
-              {loading ? 'Processing...' : (activeTab === 'file' ? 'Process & Translate' : 'Translate')}
+              {loading ? 'Processing...' : (activeTab === 'text' ? 'Translate' : 'Process & Translate')}
               </button>
               <button
                 className="btn-clear"
                 onClick={handleClear}
-                disabled={!hasInput && outputItems.length === 0 && !error}
+                disabled={!hasInput && outputItems.length === 0 && !error && !cameraError && !cameraActive}
               >
                 <FontAwesomeIcon icon={faEraser} />
                 Clear
@@ -355,7 +669,7 @@ const exportToDocx = async () => {
         <div className="formats-bar">
           <span className="formats-bar-label">Supported Formats</span>
           <div className="formats-chips">
-            {['JPG', 'PNG', 'TIF', 'ZIP', 'Direct Text'].map((f) => (
+            {['JPG', 'PNG', 'TIF', 'ZIP', 'Direct Text', 'Camera Photo'].map((f) => (
               <span className="format-chip" key={f}>{f}</span>
             ))}
           </div>
