@@ -254,6 +254,125 @@
   background: #2d2d4e;
 }
 
+.camera-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.camera-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.camera-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.camera-action-btn:hover {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+}
+
+.camera-action-btn.primary {
+  background: #1a1a2e;
+  border-color: #1a1a2e;
+  color: #ffffff;
+}
+
+.camera-action-btn.primary:hover {
+  background: #2d2d4e;
+  border-color: #2d2d4e;
+  color: #ffffff;
+}
+
+.camera-action-btn.subtle {
+  background: #f9fafb;
+}
+
+.camera-error {
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.camera-preview-card,
+.camera-empty-state {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.camera-preview-card {
+  padding: 14px;
+}
+
+.camera-video,
+.camera-image-preview {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  background: #111827;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.camera-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.camera-preview-meta {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.camera-empty-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px;
+  gap: 10px;
+}
+
+.camera-empty-icon {
+  font-size: 36px;
+  color: #9ca3af;
+}
+
+.camera-empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.camera-empty-text {
+  max-width: 360px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
 
 /* ── Output Card ── */
 .output-card {
@@ -465,8 +584,31 @@
     padding: 40px 20px 60px;
   }
 
+  .tab-bar {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .tab-btn {
-    padding: 8px 14px;
+    flex: 1;
+    justify-content: center;
+    padding: 8px 12px;
     font-size: 13px;
+  }
+
+  .input-actions,
+  .camera-actions-row,
+  .output-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-translate,
+  .btn-clear,
+  .btn-export,
+  .camera-action-btn,
+  .file-browse-btn {
+    justify-content: center;
+    width: 100%;
   }
 }
