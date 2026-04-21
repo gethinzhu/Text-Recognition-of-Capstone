@@ -157,7 +157,12 @@ class CreditsView(View):
     """
 
     def get(self, request):
-        api_key = settings.OPENROUTER_API_KEY
+        raw_key = request.headers.get("X-User-Api-Key") or None
+        user_api_key, key_error = _validate_user_api_key(raw_key)
+        if key_error:
+            return JsonResponse({"error": key_error}, status=400)
+
+        api_key = user_api_key or settings.OPENROUTER_API_KEY
         if not api_key:
             return JsonResponse({"error": "API key not configured."}, status=500)
 
