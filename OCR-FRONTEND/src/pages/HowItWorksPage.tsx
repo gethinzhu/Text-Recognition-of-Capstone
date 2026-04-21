@@ -1,6 +1,6 @@
 import '../css/Howitworkspage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faUpload, faLanguage } from '@fortawesome/free-solid-svg-icons';
 
 export default function HowItWorksPage() {
   return (
@@ -42,11 +42,41 @@ export default function HowItWorksPage() {
                   Capture an image directly using your device camera for quick OCR processing.
                 </div>
               </div>
+            </div> 
+            </div>
+              {/* Step 2 */}
+              <div className="how-step-card">
+                <div className="how-step-header">
+                  <div className="how-step-num">2</div>
+                  <div className="how-step-icon">
+                    <FontAwesomeIcon icon={faLanguage} />
+                  </div>
+                  <h2 className="how-step-title">Process & Recognise Text</h2>
+                </div>
+
+                <p className="how-step-desc">
+                  Once your input is submitted, the system processes the content using OCR technology to recognise Fraktur text.
+                </p>
+
+                <div className="how-sub-grid">
+                  <div className="how-sub-item">
+                    <div className="how-sub-title">OCR Processing</div>
+                    <div className="how-sub-desc">
+                      The system scans and extracts text from images or documents.
+                    </div>
+                  </div>
+
+                  <div className="how-sub-item">
+                    <div className="how-sub-title">Text Recognition</div>
+                    <div className="how-sub-desc">
+                      Fraktur characters are identified and converted into readable modern text.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
         </div>
-      </div>
-    </div>
   );
 }
