@@ -21,10 +21,14 @@ OCR_SYSTEM_PROMPT = (
 class GeminiOCRService:
     """
     Calls the Google Gemini 3.1 Pro model to perform OCR on an uploaded image.
+
+    If api_key is provided it is used only for this request and never stored.
+    Falls back to the server-configured key when no user key is supplied.
     """
 
-    def __init__(self):
-        self.api_key = settings.OPENROUTER_API_KEY
+    def __init__(self, api_key: str | None = None):
+        # Use caller-supplied key if present; never persist it beyond this object's lifetime.
+        self.api_key = api_key if api_key else settings.OPENROUTER_API_KEY
         self.model = settings.OPENROUTER_MODEL
         self.base_url = settings.OPENROUTER_BASE_URL
         self.url = f"{self.base_url}/chat/completions"
