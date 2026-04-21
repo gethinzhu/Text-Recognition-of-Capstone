@@ -10,6 +10,10 @@ export default function HowItWorksPage() {
         <div className="how-header">
           <h1 className="how-title">How It Works</h1>
           <p className="how-subtitle">Understanding the translation process</p>
+          <p className="how-intro">
+            This tool helps convert historical Fraktur text into readable modern text, 
+            making archival documents easier to access, search, and understand.
+          </p>
         </div>
 
         {/* Steps */}

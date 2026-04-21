@@ -208,3 +208,12 @@
 .how-info-banner {
   animation: fadeUp 0.6s ease forwards;
 }
+
+.how-intro {
+  font-size: 14px;
+  color: #4b5563;
+  max-width: 520px;
+  margin: 12px auto 0;
+  line-height: 1.6;
+  font-weight: 300;
+}
