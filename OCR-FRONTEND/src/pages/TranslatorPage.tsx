@@ -34,6 +34,10 @@ type OutputItem = {
   text?: string;
   error?: string;
 };
+type CameraOption = {
+  deviceId: string;
+  label: string;
+};
 
 const TABS: { id: Tab; icon: any; label: string }[] = [
   { id: 'text', icon: faPenToSquare, label: 'Text' },
@@ -49,6 +53,8 @@ export default function TranslatorPage() {
   const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [cameraDevices, setCameraDevices] = useState<CameraOption[]>([]);
+  const [selectedCameraId, setSelectedCameraId] = useState('');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,6 +73,9 @@ export default function TranslatorPage() {
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(pointer: coarse)').matches;
+  const supportsDeviceEnumeration =
+    typeof navigator !== 'undefined' &&
+    Boolean(navigator.mediaDevices?.enumerateDevices);
 
   useEffect(() => {
     if (!cameraFile) {
@@ -130,6 +139,74 @@ export default function TranslatorPage() {
     void playPreview();
   }, [cameraActive]);
 
+  useEffect(() => {
+    if (!supportsDeviceEnumeration || prefersNativeCameraCapture) {
+      return;
+    }
+
+    const syncDevices = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices
+          .filter((device) => device.kind === 'videoinput')
+          .map((device, index) => ({
+            deviceId: device.deviceId,
+            label: device.label || `Camera ${index + 1}`,
+          }));
+
+        setCameraDevices(videoInputs);
+
+        if (!selectedCameraId && videoInputs.length > 0) {
+          setSelectedCameraId(videoInputs[0].deviceId);
+        }
+      } catch {
+        // Ignore enumeration failures and continue with facingMode fallback.
+      }
+    };
+
+    void syncDevices();
+
+    const handleDeviceChange = () => {
+      void syncDevices();
+    };
+
+    navigator.mediaDevices.addEventListener?.('devicechange', handleDeviceChange);
+
+    return () => {
+      navigator.mediaDevices.removeEventListener?.('devicechange', handleDeviceChange);
+    };
+  }, [prefersNativeCameraCapture, selectedCameraId, supportsDeviceEnumeration]);
+
+  const refreshCameraDevices = async (activeStream?: MediaStream) => {
+    if (!supportsDeviceEnumeration || prefersNativeCameraCapture) {
+      return;
+    }
+
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices
+        .filter((device) => device.kind === 'videoinput')
+        .map((device, index) => ({
+          deviceId: device.deviceId,
+          label: device.label || `Camera ${index + 1}`,
+        }));
+
+      setCameraDevices(videoInputs);
+
+      const activeDeviceId = activeStream?.getVideoTracks?.()[0]?.getSettings?.().deviceId;
+      if (activeDeviceId) {
+        setSelectedCameraId(activeDeviceId);
+        return;
+      }
+
+      if (!selectedCameraId && videoInputs.length > 0) {
+        setSelectedCameraId(videoInputs[0].deviceId);
+      }
+    } catch {
+      // Ignore enumeration failures and continue with the active stream.
+    }
+  };
+
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -183,7 +260,7 @@ export default function TranslatorPage() {
     }
   };
 
-  const startCamera = async () => {
+  const startCamera = async (deviceIdOverride?: string) => {
     if (!supportsLiveCamera) {
       setCameraError('Live camera preview is not supported in this browser.');
       return;
@@ -196,10 +273,13 @@ export default function TranslatorPage() {
       let stream: MediaStream;
 
       try {
+        const preferredDeviceId = deviceIdOverride || selectedCameraId;
+        const videoConstraints = preferredDeviceId
+          ? { deviceId: { exact: preferredDeviceId } }
+          : { facingMode: { ideal: preferredFacingMode } };
+
         stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: preferredFacingMode },
-          },
+          video: videoConstraints,
           audio: false,
         });
       } catch {
@@ -213,6 +293,7 @@ export default function TranslatorPage() {
       streamRef.current = stream;
       setCameraActive(true);
       setCameraError(null);
+      await refreshCameraDevices(stream);
     } catch (cameraAccessError) {
       const message =
         cameraAccessError instanceof Error
@@ -289,6 +370,21 @@ export default function TranslatorPage() {
   const retakePhoto = () => {
     setCameraFile(null);
     setCameraError(null);
+  };
+
+  const handleCameraSelectionChange = async (deviceId: string) => {
+    setSelectedCameraId(deviceId);
+    setCameraError(null);
+
+    if (!cameraActive) {
+      return;
+    }
+
+    try {
+      await startCamera(deviceId);
+    } catch {
+      // startCamera already reports a user-facing error.
+    }
   };
 
 const copyOutputToClipboard = async () => {
@@ -566,6 +662,28 @@ const exportToDocx = async () => {
                     </button>
                   )}
                 </div>
+
+                {!prefersNativeCameraCapture && cameraDevices.length > 1 && (
+                  <div className="camera-device-row">
+                    <label className="camera-device-label" htmlFor="camera-device-select">
+                      Camera source
+                    </label>
+                    <select
+                      id="camera-device-select"
+                      className="camera-device-select"
+                      value={selectedCameraId}
+                      onChange={(e) => {
+                        void handleCameraSelectionChange(e.target.value);
+                      }}
+                    >
+                      {cameraDevices.map((device) => (
+                        <option key={device.deviceId} value={device.deviceId}>
+                          {device.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <input
                   ref={cameraInputRef}
