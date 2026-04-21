@@ -10,6 +10,10 @@ export default function HowItWorksPage() {
         <div className="how-header">
           <h1 className="how-title">How It Works</h1>
           <p className="how-subtitle">Understanding the translation process</p>
+          <p className="how-intro">
+            This tool helps convert historical Fraktur text into readable modern text, 
+            making archival documents easier to access, search, and understand.
+          </p>
         </div>
 
         {/* Steps */}
@@ -25,7 +29,7 @@ export default function HowItWorksPage() {
               <h2 className="how-step-title">Choose Your Input Method</h2>
             </div>
             <p className="how-step-desc">
-              Select from multiple input options to best suit your needs.
+              Choose how you want to provide your Fraktur content for processing.
             </p>
             <div className="how-sub-grid">
               <div className="how-sub-item">
@@ -55,7 +59,7 @@ export default function HowItWorksPage() {
                 </div>
 
                 <p className="how-step-desc">
-                  Once your input is submitted, the system processes the content using OCR technology to recognise Fraktur text.
+                  Submit your input to let the system process and recognise the Fraktur text using OCR.
                 </p>
 
                 <div className="how-sub-grid">
@@ -85,7 +89,7 @@ export default function HowItWorksPage() {
                 </div>
 
                 <p className="how-step-desc">
-                  After processing, the recognised text is displayed on the page where you can review, copy, or download it for later use.
+                  Review the recognised text, copy it instantly, or download it as a PDF or DOCX file.
                 </p>
 
                 <div className="how-sub-grid">
@@ -119,6 +123,11 @@ export default function HowItWorksPage() {
                   <div className="how-info-desc">
                     Processing typically takes around <strong>2–3 minutes per page</strong>. 
                     This may vary depending on image quality, file size, and number of uploads.
+
+                    {/* NEW TIP */}
+                    <div className="how-info-tip">
+                      💡 Tip: For faster results, upload clear, high-quality images and avoid very large ZIP files.
+                    </div>
                   </div>
                 </div>
               </div>
