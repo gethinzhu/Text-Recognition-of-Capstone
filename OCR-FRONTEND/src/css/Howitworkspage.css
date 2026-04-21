@@ -217,3 +217,14 @@
   line-height: 1.6;
   font-weight: 300;
 }
+
+.how-info-tip {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #07060b; 
+  background: rgba(86, 77, 184, 0.06);
+  padding: 8px 10px;
+  border-radius: 6px;
+  line-height: 1.5;
+  border-left: 3px solid #4338ca;
+}

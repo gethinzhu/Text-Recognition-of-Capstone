@@ -123,6 +123,11 @@ export default function HowItWorksPage() {
                   <div className="how-info-desc">
                     Processing typically takes around <strong>2–3 minutes per page</strong>. 
                     This may vary depending on image quality, file size, and number of uploads.
+
+                    {/* NEW TIP */}
+                    <div className="how-info-tip">
+                      💡 Tip: For faster results, upload clear, high-quality images and avoid very large ZIP files.
+                    </div>
                   </div>
                 </div>
               </div>
