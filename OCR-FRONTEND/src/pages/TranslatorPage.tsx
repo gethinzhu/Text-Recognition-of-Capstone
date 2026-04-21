@@ -427,7 +427,8 @@ const exportToDocx = async () => {
             </button>
           </div>
           <p className="api-key-hint">
-            Your key is sent directly to the server per request and is never stored.
+            Your key is sent per request and never stored on the server. It is saved in your browser only.
+            If you are on a shared or public computer, clear the key when done.
           </p>
         </div>
 
@@ -618,8 +619,6 @@ const exportToDocx = async () => {
                             : [],
                     apiKey: apiKey.trim() || undefined,
                   });
-
-                  console.log('Translation API response:', result);
 
                   const formattedResults: OutputItem[] = Object.entries(result).map(
                     ([fileName, value]: [string, any]) => ({

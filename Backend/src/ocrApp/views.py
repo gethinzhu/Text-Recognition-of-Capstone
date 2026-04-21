@@ -95,17 +95,21 @@ class ImageUploadAndRecogniseView(View):
 
                         # Extract ZIP
                         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                            zip_ref.extractall(temp_dir)
-
                             for extracted_name in zip_ref.namelist():
 
-                                extracted_path = os.path.join(temp_dir, extracted_name)
+                                # Security: prevent path traversal attacks
+                                extracted_path = os.path.realpath(os.path.join(temp_dir, extracted_name))
+                                if not extracted_path.startswith(os.path.realpath(temp_dir)):
+                                    results[extracted_name] = {"error": "Blocked: path traversal detected."}
+                                    continue
+
+                                zip_ref.extract(extracted_name, temp_dir)
 
                                 # skip folders
                                 if not os.path.isfile(extracted_path):
                                     continue
 
-                                # optional: filter only images
+                                # filter only images
                                 if not extracted_name.lower().endswith(
                                     (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".gif")
                                 ):
