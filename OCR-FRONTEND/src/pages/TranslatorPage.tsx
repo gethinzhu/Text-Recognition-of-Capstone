@@ -106,6 +106,30 @@ export default function TranslatorPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!cameraActive || !videoRef.current || !streamRef.current) {
+      return;
+    }
+
+    const videoElement = videoRef.current;
+    videoElement.srcObject = streamRef.current;
+
+    const playPreview = async () => {
+      try {
+        await videoElement.play();
+      } catch (playbackError) {
+        const message =
+          playbackError instanceof Error
+            ? playbackError.message
+            : 'Unable to start the camera preview.';
+
+        setCameraError(`Camera preview failed: ${message}`);
+      }
+    };
+
+    void playPreview();
+  }, [cameraActive]);
+
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -167,21 +191,26 @@ export default function TranslatorPage() {
 
     try {
       stopCamera();
+      const preferredFacingMode = prefersNativeCameraCapture ? 'environment' : 'user';
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-        },
-        audio: false,
-      });
+      let stream: MediaStream;
 
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: preferredFacingMode },
+          },
+          audio: false,
+        });
+      } catch {
+        // Fall back to the default camera if the preferred facing mode is unavailable.
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
       }
 
+      streamRef.current = stream;
       setCameraActive(true);
       setCameraError(null);
     } catch (cameraAccessError) {
