@@ -3,6 +3,8 @@ import zipfile
 import tempfile
 import os
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import BytesIO
 
 import requests
 from django.conf import settings
@@ -72,10 +74,14 @@ class ImageUploadAndRecogniseView(View):
             logger.info("Request is using the server default API key.")
 
         service = GeminiOCRService(api_key=user_api_key)
+
+        # Collect all (name, file_bytes) tasks to process in parallel.
+        # Files are read into memory in the main thread before handing off,
+        # as Django's UploadedFile objects are not thread-safe.
+        tasks: list[tuple[str, bytes]] = []
         results = {}
 
         for file in files:
-
             try:
                 file.seek(0)
 
@@ -88,12 +94,10 @@ class ImageUploadAndRecogniseView(View):
 
                         zip_path = os.path.join(temp_dir, file.name)
 
-                        # Save zip locally
                         with open(zip_path, "wb") as f:
                             for chunk in file.chunks():
                                 f.write(chunk)
 
-                        # Extract ZIP
                         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                             for extracted_name in zip_ref.namelist():
 
@@ -105,49 +109,44 @@ class ImageUploadAndRecogniseView(View):
 
                                 zip_ref.extract(extracted_name, temp_dir)
 
-                                # skip folders
                                 if not os.path.isfile(extracted_path):
                                     continue
 
-                                # filter only images
                                 if not extracted_name.lower().endswith(
                                     (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".gif")
                                 ):
                                     continue
 
-                                try:
-                                    with open(extracted_path, "rb") as img_file:
-                                        img_file.seek(0)
-
-                                        recognised_text = service.recognise(img_file)
-
-                                        results[extracted_name] = {
-                                            "text": recognised_text
-                                        }
-
-                                except Exception as e:
-                                    results[extracted_name] = {
-                                        "error": str(e)
-                                    }
+                                with open(extracted_path, "rb") as img_file:
+                                    tasks.append((extracted_name, img_file.read()))
 
                 # =========================
                 # NORMAL IMAGE HANDLING
                 # =========================
                 else:
-
                     error = validate_image_file(file)
                     if error:
                         results[file.name] = {"error": error}
                         continue
 
-                    recognised_text = service.recognise(file)
-
-                    results[file.name] = {
-                        "text": recognised_text
-                    }
+                    tasks.append((file.name, file.read()))
 
             except Exception as exc:
                 results[file.name] = {"error": str(exc)}
+
+        # Process all collected images in parallel
+        def recognise_task(name: str, file_bytes: bytes) -> tuple[str, dict]:
+            try:
+                recognised_text = service.recognise(BytesIO(file_bytes))
+                return name, {"text": recognised_text}
+            except Exception as e:
+                return name, {"error": str(e)}
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = {executor.submit(recognise_task, name, data): name for name, data in tasks}
+            for future in as_completed(futures):
+                name, result = future.result()
+                results[name] = result
 
         return JsonResponse(results, status=200)
 
