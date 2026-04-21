@@ -111,9 +111,19 @@ export default function HowItWorksPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
+              {/* Processing Time Section */}
+              <div className="how-info-banner">
+                <div className="how-info-icon">⏱</div>
+                <div className="how-info-content">
+                  <div className="how-info-title">Processing Time</div>
+                  <div className="how-info-desc">
+                    Processing typically takes around <strong>2–3 minutes per page</strong>. 
+                    This may vary depending on image quality, file size, and number of uploads.
+                  </div>
+                </div>
+              </div>
         </div>
+      </div>
+    </div>
   );
 }

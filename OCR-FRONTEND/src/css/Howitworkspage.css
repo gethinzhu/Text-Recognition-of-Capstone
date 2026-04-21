@@ -133,6 +133,38 @@
   font-weight: 300;
 }
 
+.how-info-banner {
+  margin: 32px 24px 40px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.how-info-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.how-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.how-info-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.how-info-desc {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+}
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .how-container {
