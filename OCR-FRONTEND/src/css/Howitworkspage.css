@@ -1,0 +1,137 @@
+/* ── How It Works Page Shell ── */
+.how-page {
+  padding-top: 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.how-container {
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 60px 40px 80px;
+  flex: 1;
+}
+
+/* ── Header ── */
+.how-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.how-title {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.how-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ── Steps ── */
+.how-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.how-step-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+
+.how-step-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.how-step-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.how-step-num {
+  width: 36px;
+  height: 36px;
+  background: #1a1a2e;
+  color: #ffffff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.how-step-icon {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.how-step-title {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.how-step-desc {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+/* ── Sub Items Grid ── */
+.how-sub-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.how-sub-item {
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.how-sub-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+
+.how-sub-desc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .how-container {
+    padding: 40px 20px 60px;
+  }
+
+  .how-sub-grid {
+    grid-template-columns: 1fr;
+  }
+}
