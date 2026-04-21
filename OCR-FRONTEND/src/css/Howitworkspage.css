@@ -18,6 +18,7 @@
 .how-header {
   text-align: center;
   margin-bottom: 56px;
+  margin-top: 40px;
 }
 
 .how-title {
@@ -100,7 +101,7 @@
 /* ── Sub Items Grid ── */
 .how-sub-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
 }
 

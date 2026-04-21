@@ -1,6 +1,7 @@
 import '../css/Howitworkspage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
+
 export default function HowItWorksPage() {
   return (
     <div className="page">
@@ -34,6 +35,12 @@ export default function HowItWorksPage() {
               <div className="how-sub-item">
                 <div className="how-sub-title">Direct Text</div>
                 <div className="how-sub-desc">Paste or type Fraktur text directly into the input field.</div>
+              </div>
+              <div className="how-sub-item">
+                <div className="how-sub-title"> Camera Capture </div>
+                <div className="how-sub-desc">
+                  Capture an image directly using your device camera for quick OCR processing.
+                </div>
               </div>
             </div>
           </div>
