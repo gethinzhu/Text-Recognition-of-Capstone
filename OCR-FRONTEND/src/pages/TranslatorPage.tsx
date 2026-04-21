@@ -22,7 +22,10 @@ import {
   faFileLines,
   faFilePdf,
   faFileWord,
-  faCopy
+  faCopy,
+  faKey,
+  faEye,
+  faEyeSlash
 } from '@fortawesome/free-solid-svg-icons';
 
 type Tab = 'text' | 'file' | 'camera';
@@ -46,6 +49,8 @@ export default function TranslatorPage() {
   const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
+  const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
@@ -387,6 +392,45 @@ const exportToDocx = async () => {
           </p>
         </div>
 
+        {/* API Key Input */}
+        <div className="api-key-bar">
+          <div className="api-key-bar-left">
+            <FontAwesomeIcon icon={faKey} className="api-key-icon" />
+            <span className="api-key-label">Your OpenRouter API Key</span>
+            <span className="api-key-optional">optional</span>
+          </div>
+          <div className="api-key-input-wrapper">
+            <input
+              className="api-key-input"
+              type={showApiKey ? 'text' : 'password'}
+              placeholder="sk-or-v1-..."
+              value={apiKey}
+              onChange={(e) => {
+                setApiKey(e.target.value);
+                if (e.target.value.trim()) {
+                  localStorage.setItem('openrouter_api_key', e.target.value);
+                } else {
+                  localStorage.removeItem('openrouter_api_key');
+                }
+                window.dispatchEvent(new Event('apikey-changed'));
+              }}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button
+              className="api-key-toggle"
+              type="button"
+              onClick={() => setShowApiKey((v) => !v)}
+              title={showApiKey ? 'Hide key' : 'Show key'}
+            >
+              <FontAwesomeIcon icon={showApiKey ? faEyeSlash : faEye} />
+            </button>
+          </div>
+          <p className="api-key-hint">
+            Your key is sent directly to the server per request and is never stored.
+          </p>
+        </div>
+
         {/* Side by side panel */}
         <div className="translator-panels">
 
@@ -571,7 +615,8 @@ const exportToDocx = async () => {
                           ? selectedFiles
                           : cameraFile
                             ? [cameraFile]
-                            : []
+                            : [],
+                    apiKey: apiKey.trim() || undefined,
                   });
 
                   console.log('Translation API response:', result);

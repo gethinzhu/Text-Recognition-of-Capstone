@@ -1,3 +1,4 @@
+import re
 import zipfile
 import tempfile
 import os
@@ -20,6 +21,28 @@ from .services import GeminiOCRService
 
 logger = logging.getLogger(__name__)
 
+# OpenRouter keys follow the pattern: sk-or-v1-<hex chars>
+# We validate the format so only well-formed keys are forwarded.
+_API_KEY_RE = re.compile(r'^sk-or-v1-[A-Za-z0-9]{1,200}$')
+_API_KEY_MAX_LEN = 220  # hard upper bound to prevent oversized header abuse
+
+
+def _validate_user_api_key(raw: str | None) -> tuple[str | None, str | None]:
+    """
+    Return (key, None) if valid, or (None, error_message) if not.
+    The raw value is never included in the returned error message.
+    """
+    if not raw:
+        return None, None  # no key supplied — fall back to server default
+
+    if len(raw) > _API_KEY_MAX_LEN:
+        return None, "Provided API key exceeds maximum allowed length."
+
+    if not _API_KEY_RE.match(raw):
+        return None, "Provided API key has an invalid format."
+
+    return raw, None
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class ImageUploadAndRecogniseView(View):
@@ -35,7 +58,20 @@ class ImageUploadAndRecogniseView(View):
         if not files:
             return JsonResponse({"error": "No image files found."}, status=400)
 
-        service = GeminiOCRService()
+        # Read user-supplied API key from header — used only for this request,
+        # never logged or persisted.
+        raw_key = request.headers.get("X-User-Api-Key") or None
+        user_api_key, key_error = _validate_user_api_key(raw_key)
+        if key_error:
+            # Return the error without echoing the raw key value back to the client.
+            return JsonResponse({"error": key_error}, status=400)
+
+        if user_api_key:
+            logger.info("Request is using a user-supplied API key.")
+        else:
+            logger.info("Request is using the server default API key.")
+
+        service = GeminiOCRService(api_key=user_api_key)
         results = {}
 
         for file in files:
@@ -121,7 +157,12 @@ class CreditsView(View):
     """
 
     def get(self, request):
-        api_key = settings.OPENROUTER_API_KEY
+        raw_key = request.headers.get("X-User-Api-Key") or None
+        user_api_key, key_error = _validate_user_api_key(raw_key)
+        if key_error:
+            return JsonResponse({"error": key_error}, status=400)
+
+        api_key = user_api_key or settings.OPENROUTER_API_KEY
         if not api_key:
             return JsonResponse({"error": "API key not configured."}, status=500)
 

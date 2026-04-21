@@ -6,19 +6,26 @@ import { getCredits } from '../api';
 export default function Navbar() {
   const [remaining, setRemaining] = useState<number | null>(null);
 
-  useEffect(() => {
-    getCredits()
+  const fetchCredits = () => {
+    const key = localStorage.getItem('openrouter_api_key') || undefined;
+    getCredits(key)
       .then((data) => setRemaining(data.remaining))
       .catch(() => setRemaining(null));
+  };
+
+  useEffect(() => {
+    fetchCredits();
 
     // Refresh every 60 seconds
-    const id = setInterval(() => {
-      getCredits()
-        .then((data) => setRemaining(data.remaining))
-        .catch(() => setRemaining(null));
-    }, 60_000);
+    const id = setInterval(fetchCredits, 60_000);
 
-    return () => clearInterval(id);
+    // Re-fetch immediately when user changes their API key
+    window.addEventListener('apikey-changed', fetchCredits);
+
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('apikey-changed', fetchCredits);
+    };
   }, []);
 
   return (

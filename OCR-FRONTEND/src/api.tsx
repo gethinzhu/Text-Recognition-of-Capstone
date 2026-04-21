@@ -10,8 +10,12 @@ export interface CreditsResponse {
 /**
  * Fetch remaining OpenRouter credits from the backend proxy.
  */
-export async function getCredits(): Promise<CreditsResponse> {
-  const response = await fetch(`${API_BASE_URL}/credits/`);
+export async function getCredits(apiKey?: string): Promise<CreditsResponse> {
+  const headers: HeadersInit = {};
+  if (apiKey && apiKey.trim()) {
+    headers['X-User-Api-Key'] = apiKey.trim();
+  }
+  const response = await fetch(`${API_BASE_URL}/credits/`, { headers });
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
@@ -34,9 +38,10 @@ export interface TranslateResponse {
 export async function handleTranslate(params: {
   type: 'text' | 'file';
   data: string | File | File[];
+  apiKey?: string;
 }): Promise<TranslateResponse> {
   try {
-    const { type, data } = params;
+    const { type, data, apiKey } = params;
 
     const formData = new FormData();
 
@@ -81,8 +86,14 @@ export async function handleTranslate(params: {
     }
 
     // API CALL
+    const headers: HeadersInit = {};
+    if (apiKey && apiKey.trim()) {
+      headers['X-User-Api-Key'] = apiKey.trim();
+    }
+
     const response = await fetch(`${API_BASE_URL}/upload/`, {
       method: 'POST',
+      headers,
       body: formData,
     });
 
