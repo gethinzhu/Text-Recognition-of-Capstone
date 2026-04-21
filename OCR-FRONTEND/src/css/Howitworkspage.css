@@ -175,3 +175,24 @@
     grid-template-columns: 1fr;
   }
 }
+
+.how-step-card {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeUp 0.5s ease forwards;
+}
+
+.how-step-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.how-step-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
