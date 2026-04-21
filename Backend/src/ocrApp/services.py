@@ -70,7 +70,7 @@ class GeminiOCRService:
             "Content-Type": "application/json"
         }
 
-        response = requests.post(self.url, headers=headers, json=payload)
+        response = requests.post(self.url, headers=headers, json=payload, timeout=300)
 
         if response.status_code != 200:
             raise Exception(f"API request failed: {response.text}")
