@@ -190,6 +190,14 @@
   animation-delay: 0.2s;
 }
 
+.how-step-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.how-step-card:hover {
+  transform: translateY(-3px);
+}
+
 @keyframes fadeUp {
   to {
     opacity: 1;
