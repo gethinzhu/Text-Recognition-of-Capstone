@@ -648,6 +648,13 @@ const exportToDocx = async () => {
                 </div>
 
                 <div className="api-key-input-wrapper">
+                  <div
+                    className={`api-key-status ${
+                      apiKey.trim() ? 'saved' : 'empty'
+                    }`}
+                  >
+                    {apiKey.trim() ? 'Key saved in this browser' : 'No key saved'}
+                  </div>
                   <input
                     className="api-key-input"
                     type={showApiKey ? 'text' : 'password'}

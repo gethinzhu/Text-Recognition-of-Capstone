@@ -781,3 +781,17 @@
     width: 100%;
   }
 }
+
+.api-key-status {
+  font-size: 12px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.api-key-status.saved {
+  color: #16a34a; /* green */
+}
+
+.api-key-status.empty {
+  color: #9ca3af; /* grey */
+}
