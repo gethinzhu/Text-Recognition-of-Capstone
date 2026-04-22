@@ -98,10 +98,6 @@ export default function TranslatorPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const progressIntervalRef = useRef<number | null>(null);
-  const requestStartedAtRef = useRef<number | null>(null);
-  const progressValueRef = useRef(0);
-  const elapsedMsRef = useRef(0);
   const apiPanelRef = useRef<HTMLDivElement | null>(null);
   const supportsLiveCamera =
     typeof navigator !== 'undefined' &&
@@ -138,14 +134,6 @@ export default function TranslatorPage() {
   }, [cameraFile]);
 
   useEffect(() => {
-    progressValueRef.current = progressValue;
-  }, [progressValue]);
-
-  useEffect(() => {
-    elapsedMsRef.current = elapsedMs;
-  }, [elapsedMs]);
-
-  useEffect(() => {
     if (activeTab === 'camera' || !streamRef.current) {
       return;
     }
@@ -162,61 +150,12 @@ export default function TranslatorPage() {
 
   useEffect(() => {
     return () => {
-      if (progressIntervalRef.current) {
-        window.clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      if (progressIntervalRef.current) {
-        window.clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-      return;
-    }
-
-    requestStartedAtRef.current = performance.now();
-
-    const tickProgress = () => {
-      if (requestStartedAtRef.current === null) {
-        return;
-      }
-
-      const nextElapsedMs = performance.now() - requestStartedAtRef.current;
-      let nextProgress = 12;
-
-      if (nextElapsedMs < 800) {
-        nextProgress = 12 + (nextElapsedMs / 800) * 24;
-      } else if (nextElapsedMs < 2500) {
-        nextProgress = 36 + ((nextElapsedMs - 800) / 1700) * 28;
-      } else if (nextElapsedMs < 6000) {
-        nextProgress = 64 + ((nextElapsedMs - 2500) / 3500) * 18;
-      } else {
-        nextProgress = 82 + Math.min(((nextElapsedMs - 6000) / 12000) * 10, 10);
-      }
-
-      setElapsedMs(nextElapsedMs);
-      setProgressValue((current) => Math.max(current, Math.min(nextProgress, 92)));
-    };
-
-    tickProgress();
-    progressIntervalRef.current = window.setInterval(tickProgress, 120);
-
-    return () => {
-      if (progressIntervalRef.current) {
-        window.clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-    };
-  }, [loading]);
 
   useEffect(() => {
     if (!showApiPanel) return;
@@ -236,33 +175,6 @@ export default function TranslatorPage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showApiPanel]);
-
-  const finishProgressAnimation = async () => {
-    if (progressIntervalRef.current) {
-      window.clearInterval(progressIntervalRef.current);
-      progressIntervalRef.current = null;
-    }
-
-    setProgressValue(100);
-
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 280);
-    });
-  };
-
-  const formatElapsedTime = (valueMs: number) => {
-    if (valueMs < 1000) {
-      return `${Math.max(0.1, valueMs / 1000).toFixed(1)} s`;
-    }
-
-    if (valueMs < 60000) {
-      return `${(valueMs / 1000).toFixed(1)} s`;
-    }
-
-    const minutes = Math.floor(valueMs / 60000);
-    const seconds = ((valueMs % 60000) / 1000).toFixed(1);
-    return `${minutes}m ${seconds}s`;
-  };
 
   useEffect(() => {
     if (!cameraActive || !videoRef.current || !streamRef.current) {
@@ -379,9 +291,6 @@ export default function TranslatorPage() {
     setOutputItems([]);
     setCopied(false);
     setError(null);
-    setProgressValue(0);
-    setElapsedMs(0);
-    requestStartedAtRef.current = null;
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -923,8 +832,6 @@ const exportToDocx = async () => {
                 setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
-                setProgressValue(0);
-                setElapsedMs(0);
 
                 try {
                   const result = await handleTranslate({
@@ -949,15 +856,12 @@ const exportToDocx = async () => {
                     })
                   );
 
-                  await finishProgressAnimation();
-
                   if (formattedResults.length === 0) {
                     setError('No output received from server.');
                   } else {
                     setOutputItems(formattedResults);
                   }
                 } catch (err) {
-                  await finishProgressAnimation();
                   setError(err instanceof Error ? err.message : 'Unknown error occurred');
                 } finally {
                   setLoadingPhase('idle');
