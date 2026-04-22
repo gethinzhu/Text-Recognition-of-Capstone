@@ -72,6 +72,7 @@ export default function TranslatorPage() {
   const requestStartedAtRef = useRef<number | null>(null);
   const progressValueRef = useRef(0);
   const elapsedMsRef = useRef(0);
+  const apiPanelRef = useRef<HTMLDivElement | null>(null);
   const supportsLiveCamera =
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.getUserMedia);
@@ -82,6 +83,7 @@ export default function TranslatorPage() {
   const supportsDeviceEnumeration =
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.enumerateDevices);
+  const [showApiPanel, setShowApiPanel] = useState(false);
 
   useEffect(() => {
     if (!cameraFile) {
@@ -177,6 +179,25 @@ export default function TranslatorPage() {
       }
     };
   }, [loading]);
+
+  useEffect(() => {
+    if (!showApiPanel) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        apiPanelRef.current &&
+        !apiPanelRef.current.contains(event.target as Node)
+      ) {
+        setShowApiPanel(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showApiPanel]);
 
   const finishProgressAnimation = async () => {
     if (progressIntervalRef.current) {
@@ -608,46 +629,65 @@ const exportToDocx = async () => {
           <p className="translator-subtitle">
             Convert historical Fraktur font documents into readable modern German text
           </p>
-        </div>
-
-        {/* API Key Input */}
-        <div className="api-key-bar">
-          <div className="api-key-bar-left">
-            <FontAwesomeIcon icon={faKey} className="api-key-icon" />
-            <span className="api-key-label">Your OpenRouter API Key</span>
-            <span className="api-key-optional">optional</span>
-          </div>
-          <div className="api-key-input-wrapper">
-            <input
-              className="api-key-input"
-              type={showApiKey ? 'text' : 'password'}
-              placeholder="sk-or-v1-..."
-              value={apiKey}
-              onChange={(e) => {
-                setApiKey(e.target.value);
-                if (e.target.value.trim()) {
-                  localStorage.setItem('openrouter_api_key', e.target.value);
-                } else {
-                  localStorage.removeItem('openrouter_api_key');
-                }
-                window.dispatchEvent(new Event('apikey-changed'));
-              }}
-              autoComplete="off"
-              spellCheck={false}
-            />
+          <div className="translator-api-floating" ref={apiPanelRef}>
             <button
-              className="api-key-toggle"
               type="button"
-              onClick={() => setShowApiKey((v) => !v)}
-              title={showApiKey ? 'Hide key' : 'Show key'}
+              className="translator-api-trigger"
+              onClick={() => setShowApiPanel((v) => !v)}
+              title="API key settings"
             >
-              <FontAwesomeIcon icon={showApiKey ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={faKey} />
+              <span>API Key</span>
             </button>
+
+            {showApiPanel && (
+              <div className="translator-api-popover">
+                <div className="translator-api-popover-header">
+                  <div className="translator-api-popover-title">OpenRouter API Key</div>
+                  <span className="api-key-optional">optional</span>
+                </div>
+
+                <div className="api-key-input-wrapper">
+                  <div
+                    className={`api-key-status ${
+                      apiKey.trim() ? 'saved' : 'empty'
+                    }`}
+                  >
+                    {apiKey.trim() ? 'Key saved in this browser' : 'No key saved'}
+                  </div>
+                  <input
+                    className="api-key-input"
+                    type={showApiKey ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiKey}
+                    onChange={(e) => {
+                      setApiKey(e.target.value);
+                      if (e.target.value.trim()) {
+                        localStorage.setItem('openrouter_api_key', e.target.value);
+                      } else {
+                        localStorage.removeItem('openrouter_api_key');
+                      }
+                      window.dispatchEvent(new Event('apikey-changed'));
+                    }}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <button
+                    className="api-key-toggle"
+                    type="button"
+                    onClick={() => setShowApiKey((v) => !v)}
+                    title={showApiKey ? 'Hide key' : 'Show key'}
+                  >
+                    <FontAwesomeIcon icon={showApiKey ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+
+                <p className="translator-api-popover-hint">
+                  Your key is sent per request and stored only in your browser. Clear it when using a shared computer.
+                </p>
+              </div>
+            )}
           </div>
-          <p className="api-key-hint">
-            Your key is sent per request and never stored on the server. It is saved in your browser only.
-            If you are on a shared or public computer, clear the key when done.
-          </p>
         </div>
 
         {/* Side by side panel */}
