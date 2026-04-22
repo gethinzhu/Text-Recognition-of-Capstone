@@ -35,78 +35,77 @@ export interface TranslateResponse {
  * @param params - Object containing type ('text' or 'file') and data (string, image file, or zip file)
  * @returns Promise with recognized text results
  */
-export async function handleTranslate(params: {
+export function handleTranslate(params: {
   type: 'text' | 'file';
   data: string | File | File[];
   apiKey?: string;
+  onUploadDone?: () => void;
 }): Promise<TranslateResponse> {
-  try {
-    const { type, data, apiKey } = params;
+  const { type, data, apiKey, onUploadDone } = params;
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    // TEXT INPUT
-    if (type === 'text' && typeof data === 'string') {
-      const file = new File([data], 'text-input.txt', { type: 'text/plain' });
+  // TEXT INPUT
+  if (type === 'text' && typeof data === 'string') {
+    const file = new File([data], 'text-input.txt', { type: 'text/plain' });
+    formData.append('images', file);
+  }
+
+  // FILE INPUT (single OR multiple)
+  else if (type === 'file') {
+    const files = (Array.isArray(data) ? data : [data]) as File[];
+
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/tiff', 'image/bmp', 'image/gif',
+      'application/zip', 'application/x-zip-compressed'
+    ];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.zip'];
+
+    files.forEach((file) => {
+      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      const isValidType =
+        allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+
+      if (!isValidType) {
+        throw new Error(
+          `Unsupported file type (${file.name}). Allowed: JPEG, PNG, TIFF, BMP, GIF, ZIP`
+        );
+      }
       formData.append('images', file);
-    }
+    });
+  }
 
-    // FILE INPUT (single OR multiple)
-    else if (type === 'file') {
+  else {
+    return Promise.reject(new Error(`Invalid input: type='${type}' does not match data`));
+  }
 
-      const files = (Array.isArray(data) ? data : [data]) as File[];
+  // Use XHR so we can detect the moment upload finishes (before server processes)
+  return new Promise<TranslateResponse>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
 
-      const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/tiff', 'image/bmp', 'image/gif',
-        'application/zip', 'application/x-zip-compressed'
-      ];
-
-      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.zip'];
-
-      files.forEach((file) => {
-        const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-
-        const isValidType =
-          allowedTypes.includes(file.type) ||
-          allowedExtensions.includes(fileExtension);
-
-        if (!isValidType) {
-          throw new Error(
-            `Unsupported file type (${file.name}). Allowed: JPEG, PNG, TIFF, BMP, GIF, ZIP`
-          );
-        }
-
-        // append each file
-        formData.append('images', file);
-      });
-    }
-
-    else {
-      throw new Error(`Invalid input: type='${type}' does not match data`);
-    }
-
-    // API CALL
-    const headers: HeadersInit = {};
-    if (apiKey && apiKey.trim()) {
-      headers['X-User-Api-Key'] = apiKey.trim();
-    }
-
-    const response = await fetch(`${API_BASE_URL}/upload/`, {
-      method: 'POST',
-      headers,
-      body: formData,
+    xhr.upload.addEventListener('load', () => {
+      onUploadDone?.();
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    xhr.addEventListener('load', () => {
+      if (xhr.status !== 200) {
+        reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(xhr.responseText) as TranslateResponse);
+      } catch {
+        reject(new Error('Invalid response from server'));
+      }
+    });
+
+    xhr.addEventListener('error', () => reject(new Error('Network error — could not reach server')));
+    xhr.addEventListener('abort', () => reject(new Error('Request was cancelled')));
+
+    xhr.open('POST', `${API_BASE_URL}/upload/`);
+    if (apiKey?.trim()) {
+      xhr.setRequestHeader('X-User-Api-Key', apiKey.trim());
     }
-
-    const result: TranslateResponse = await response.json();
-    return result;
-
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Failed to translate: ${errorMessage}`);
-  }
+    xhr.send(formData);
+  });
 }

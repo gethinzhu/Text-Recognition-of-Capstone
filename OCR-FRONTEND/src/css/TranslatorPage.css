@@ -571,6 +571,156 @@
   line-height: 1.5;
 }
 
+/* ── Loading State ── */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-icon-wrap {
+  font-size: 32px;
+  color: var(--accent);
+}
+
+.loading-icon-wrap.uploading {
+  animation: bounce-upload 1s ease-in-out infinite;
+}
+
+@keyframes bounce-upload {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.loading-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.loading-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.loading-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+  text-align: left;
+}
+
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.loading-step.done {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.loading-step.active {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.step-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.step-icon.spinning {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-warning {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(var(--accent-rgb, 99, 102, 241), 0.06);
+  border: 1px solid rgba(var(--accent-rgb, 99, 102, 241), 0.15);
+  border-radius: 8px;
+  padding: 12px 16px;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+.loading-warning strong {
+  color: var(--text-primary);
+}
+
+/* ── Insufficient Credits Error ── */
+.credits-error-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  background: #fff5f5;
+}
+
+.credits-error-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.credits-error-body {
+  font-size: 13px;
+  color: #7f1d1d;
+  line-height: 1.6;
+}
+
+.credits-topup-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.credits-topup-link:hover {
+  text-decoration: underline;
+}
+
 .output-actions {
   display: flex;
   gap: 10px;

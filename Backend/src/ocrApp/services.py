@@ -83,4 +83,10 @@ class GeminiOCRService:
         if "choices" not in response_json:
             raise Exception(f"Invalid API response: {response_json}")
 
-        return response_json['choices'][0]['message']['content'].strip()
+        choice = response_json['choices'][0]
+        content = choice['message']['content']
+        if content is None:
+            finish_reason = choice.get('finish_reason', 'unknown')
+            raise Exception(f"Model returned empty content (finish_reason: {finish_reason}).")
+
+        return content.strip()

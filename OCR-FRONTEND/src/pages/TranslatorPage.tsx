@@ -45,6 +45,30 @@ const TABS: { id: Tab; icon: any; label: string }[] = [
   { id: 'camera', icon: faCamera, label: 'Camera' },
 ];
 
+function isInsufficientCreditsError(msg: string) {
+  return /insufficient|credit|balance|402|payment required/i.test(msg);
+}
+
+function CreditsErrorCard() {
+  return (
+    <div className="credits-error-card">
+      <div className="credits-error-title">Insufficient Balance</div>
+      <div className="credits-error-body">
+        Your account does not have enough credits to process this request.
+        Please top up your OpenRouter account and try again.
+      </div>
+      <a
+        className="credits-topup-link"
+        href="https://openrouter.ai/credits"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Top up on OpenRouter →
+      </a>
+    </div>
+  );
+}
+
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
@@ -57,9 +81,17 @@ export default function TranslatorPage() {
   const [selectedCameraId, setSelectedCameraId] = useState('');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
+  const loading = loadingPhase !== 'idle';
+  const [outputItems, setOutputItems] = useState<OutputItem[]>(() => {
+    try {
+      const saved = sessionStorage.getItem('ocr_output_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -76,6 +108,14 @@ export default function TranslatorPage() {
   const supportsDeviceEnumeration =
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.enumerateDevices);
+
+  useEffect(() => {
+    if (outputItems.length > 0) {
+      sessionStorage.setItem('ocr_output_items', JSON.stringify(outputItems));
+    } else {
+      sessionStorage.removeItem('ocr_output_items');
+    }
+  }, [outputItems]);
 
   useEffect(() => {
     if (!cameraFile) {
@@ -749,7 +789,7 @@ const exportToDocx = async () => {
               className="btn-translate" 
               disabled={!hasInput || loading}
               onClick={async () => {
-                setLoading(true);
+                setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
 
@@ -765,6 +805,7 @@ const exportToDocx = async () => {
                             ? [cameraFile]
                             : [],
                     apiKey: apiKey.trim() || undefined,
+                    onUploadDone: () => setLoadingPhase('processing'),
                   });
 
                   const formattedResults: OutputItem[] = Object.entries(result).map(
@@ -783,7 +824,7 @@ const exportToDocx = async () => {
                 } catch (err) {
                   setError(err instanceof Error ? err.message : 'Unknown error occurred');
                 } finally {
-                setLoading(false);
+                  setLoadingPhase('idle');
                 }
               }}
               >
@@ -820,24 +861,55 @@ const exportToDocx = async () => {
                 </button>
               </div>
             )}
-            {loading ? (
-              <div className="output-empty">
-                <div className="output-empty-icon">
-                  <FontAwesomeIcon icon={faFileLines} />
+            {loadingPhase === 'uploading' ? (
+              <div className="loading-state">
+                <div className="loading-icon-wrap uploading">
+                  <FontAwesomeIcon icon={faUpload} />
                 </div>
-                <div className="output-empty-text">Processing...</div>
+                <div className="loading-title">Uploading your files...</div>
+                <div className="loading-subtitle">Sending files to the server, please wait.</div>
+                <div className="loading-dots"><span /><span /><span /></div>
+              </div>
+            ) : loadingPhase === 'processing' ? (
+              <div className="loading-state">
+                <div className="loading-steps">
+                  <div className="loading-step done">
+                    <span className="step-icon">✓</span>
+                    <span>Upload complete</span>
+                  </div>
+                  {(activeTab === 'file' && selectedFiles.some(f => f.name.toLowerCase().endsWith('.zip'))) && (
+                    <div className="loading-step active">
+                      <span className="step-icon spinning">⟳</span>
+                      <span>Extracting archive...</span>
+                    </div>
+                  )}
+                  <div className="loading-step active">
+                    <span className="step-icon spinning">⟳</span>
+                    <span>AI is recognising text...</span>
+                  </div>
+                </div>
+                <div className="loading-warning">
+                  This may take <strong>1–3 minutes per page</strong>.<br />
+                  Please do not close or refresh this tab.
+                </div>
               </div>
             ) : error ? (
-              <div className="output-error">
-                {error}
-              </div>
+              isInsufficientCreditsError(error) ? (
+                <CreditsErrorCard />
+              ) : (
+                <div className="output-error">{error}</div>
+              )
             ) : outputItems.length > 0 ? (
               <div className="output-results">
                 {outputItems.map((item, index) => (
                   <div key={index} className="output-result-card">
                     <div className="output-file-name">{item.fileName}</div>
                     {item.error ? (
-                      <div className="output-error-text">Error: {item.error}</div>
+                      isInsufficientCreditsError(item.error) ? (
+                        <CreditsErrorCard />
+                      ) : (
+                        <div className="output-error-text">Error: {item.error}</div>
+                      )
                     ) : (
                       <pre className="output-text">{item.text}</pre>
                     )}
