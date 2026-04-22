@@ -114,6 +114,8 @@ export default function TranslatorPage() {
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.enumerateDevices);
   const [showApiPanel, setShowApiPanel] = useState(false);
+  const [progressValue, setProgressValue] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
 
   useEffect(() => {
     if (outputItems.length > 0) {
