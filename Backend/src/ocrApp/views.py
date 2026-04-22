@@ -101,6 +101,11 @@ class ImageUploadAndRecogniseView(View):
                         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                             for extracted_name in zip_ref.namelist():
 
+                                # Skip macOS metadata files (__MACOSX/ dir and ._* resource forks)
+                                base_filename = os.path.basename(extracted_name)
+                                if extracted_name.startswith("__MACOSX/") or base_filename.startswith("._"):
+                                    continue
+
                                 # Security: prevent path traversal attacks
                                 extracted_path = os.path.realpath(os.path.join(temp_dir, extracted_name))
                                 if not extracted_path.startswith(os.path.realpath(temp_dir)):
