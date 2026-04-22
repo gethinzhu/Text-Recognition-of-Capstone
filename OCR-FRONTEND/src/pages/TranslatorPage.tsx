@@ -72,6 +72,7 @@ export default function TranslatorPage() {
   const requestStartedAtRef = useRef<number | null>(null);
   const progressValueRef = useRef(0);
   const elapsedMsRef = useRef(0);
+  const apiPanelRef = useRef<HTMLDivElement | null>(null);
   const supportsLiveCamera =
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.getUserMedia);
@@ -178,6 +179,25 @@ export default function TranslatorPage() {
       }
     };
   }, [loading]);
+
+  useEffect(() => {
+    if (!showApiPanel) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        apiPanelRef.current &&
+        !apiPanelRef.current.contains(event.target as Node)
+      ) {
+        setShowApiPanel(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showApiPanel]);
 
   const finishProgressAnimation = async () => {
     if (progressIntervalRef.current) {
@@ -609,7 +629,7 @@ const exportToDocx = async () => {
           <p className="translator-subtitle">
             Convert historical Fraktur font documents into readable modern German text
           </p>
-          <div className="translator-api-floating">
+          <div className="translator-api-floating" ref={apiPanelRef}>
             <button
               type="button"
               className="translator-api-trigger"
