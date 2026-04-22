@@ -207,6 +207,62 @@
   font-weight: 300;
 }
 
+.progress-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 28px 8px;
+}
+
+.progress-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progress-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.progress-card-percent {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1a1a2e 0%, #3f3c68 100%);
+  transition: width 0.18s ease-out;
+}
+
+.progress-card-meta {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.progress-card-hint {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
 
 .input-card {
   background: #ffffff;
