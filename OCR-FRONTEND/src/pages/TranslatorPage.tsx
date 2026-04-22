@@ -58,6 +58,8 @@ export default function TranslatorPage() {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [progressValue, setProgressValue] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [outputItems, setOutputItems] = useState<OutputItem[]>([]);
   const [copied, setCopied] = useState(false);
@@ -66,6 +68,10 @@ export default function TranslatorPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
+  const requestStartedAtRef = useRef<number | null>(null);
+  const progressValueRef = useRef(0);
+  const elapsedMsRef = useRef(0);
   const supportsLiveCamera =
     typeof navigator !== 'undefined' &&
     Boolean(navigator.mediaDevices?.getUserMedia);
@@ -92,6 +98,14 @@ export default function TranslatorPage() {
   }, [cameraFile]);
 
   useEffect(() => {
+    progressValueRef.current = progressValue;
+  }, [progressValue]);
+
+  useEffect(() => {
+    elapsedMsRef.current = elapsedMs;
+  }, [elapsedMs]);
+
+  useEffect(() => {
     if (activeTab === 'camera' || !streamRef.current) {
       return;
     }
@@ -108,12 +122,88 @@ export default function TranslatorPage() {
 
   useEffect(() => {
     return () => {
+      if (progressIntervalRef.current) {
+        window.clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      if (progressIntervalRef.current) {
+        window.clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      return;
+    }
+
+    requestStartedAtRef.current = performance.now();
+
+    const tickProgress = () => {
+      if (requestStartedAtRef.current === null) {
+        return;
+      }
+
+      const nextElapsedMs = performance.now() - requestStartedAtRef.current;
+      let nextProgress = 12;
+
+      if (nextElapsedMs < 800) {
+        nextProgress = 12 + (nextElapsedMs / 800) * 24;
+      } else if (nextElapsedMs < 2500) {
+        nextProgress = 36 + ((nextElapsedMs - 800) / 1700) * 28;
+      } else if (nextElapsedMs < 6000) {
+        nextProgress = 64 + ((nextElapsedMs - 2500) / 3500) * 18;
+      } else {
+        nextProgress = 82 + Math.min(((nextElapsedMs - 6000) / 12000) * 10, 10);
+      }
+
+      setElapsedMs(nextElapsedMs);
+      setProgressValue((current) => Math.max(current, Math.min(nextProgress, 92)));
+    };
+
+    tickProgress();
+    progressIntervalRef.current = window.setInterval(tickProgress, 120);
+
+    return () => {
+      if (progressIntervalRef.current) {
+        window.clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+    };
+  }, [loading]);
+
+  const finishProgressAnimation = async () => {
+    if (progressIntervalRef.current) {
+      window.clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+
+    setProgressValue(100);
+
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 280);
+    });
+  };
+
+  const formatElapsedTime = (valueMs: number) => {
+    if (valueMs < 1000) {
+      return `${Math.max(0.1, valueMs / 1000).toFixed(1)} s`;
+    }
+
+    if (valueMs < 60000) {
+      return `${(valueMs / 1000).toFixed(1)} s`;
+    }
+
+    const minutes = Math.floor(valueMs / 60000);
+    const seconds = ((valueMs % 60000) / 1000).toFixed(1);
+    return `${minutes}m ${seconds}s`;
+  };
 
   useEffect(() => {
     if (!cameraActive || !videoRef.current || !streamRef.current) {
@@ -230,6 +320,9 @@ export default function TranslatorPage() {
     setOutputItems([]);
     setCopied(false);
     setError(null);
+    setProgressValue(0);
+    setElapsedMs(0);
+    requestStartedAtRef.current = null;
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -752,6 +845,8 @@ const exportToDocx = async () => {
                 setLoading(true);
                 setError(null);
                 setOutputItems([]);
+                setProgressValue(0);
+                setElapsedMs(0);
 
                 try {
                   const result = await handleTranslate({
@@ -775,15 +870,19 @@ const exportToDocx = async () => {
                     })
                   );
 
+                  await finishProgressAnimation();
+
                   if (formattedResults.length === 0) {
                     setError('No output received from server.');
                   } else {
                     setOutputItems(formattedResults);
                   }
                 } catch (err) {
+                  await finishProgressAnimation();
                   setError(err instanceof Error ? err.message : 'Unknown error occurred');
                 } finally {
-                setLoading(false);
+                  requestStartedAtRef.current = null;
+                  setLoading(false);
                 }
               }}
               >
@@ -821,11 +920,23 @@ const exportToDocx = async () => {
               </div>
             )}
             {loading ? (
-              <div className="output-empty">
-                <div className="output-empty-icon">
-                  <FontAwesomeIcon icon={faFileLines} />
+              <div className="progress-card">
+                <div className="progress-card-header">
+                  <div className="progress-card-title">Processing your document...</div>
+                  <div className="progress-card-percent">{Math.round(progressValue)}%</div>
                 </div>
-                <div className="output-empty-text">Processing...</div>
+                <div className="progress-track">
+                  <div
+                    className="progress-fill"
+                    style={{ width: `${progressValue}%` }}
+                  />
+                </div>
+                <div className="progress-card-meta">
+                  Elapsed time: {formatElapsedTime(elapsedMs)}
+                </div>
+                <div className="progress-card-hint">
+                  OCR is running. Translation output will appear automatically when processing completes.
+                </div>
               </div>
             ) : error ? (
               <div className="output-error">
