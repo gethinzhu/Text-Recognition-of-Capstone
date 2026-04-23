@@ -142,12 +142,12 @@ class ImageUploadAndRecogniseView(View):
         # Process all collected images in parallel
         def recognise_task(name: str, file_bytes: bytes) -> tuple[str, dict]:
             try:
-                recognised_text = service.recognise(BytesIO(file_bytes))
-                return name, {"text": recognised_text}
+                text, preview_b64 = service.recognise(BytesIO(file_bytes))
+                return name, {"text": text, "preview_b64": preview_b64}
             except Exception as e:
                 return name, {"error": str(e)}
 
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(recognise_task, name, data): name for name, data in tasks}
             for future in as_completed(futures):
                 name, result = future.result()

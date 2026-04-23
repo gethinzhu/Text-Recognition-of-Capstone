@@ -33,8 +33,12 @@ class GeminiOCRService:
         self.base_url = settings.OPENROUTER_BASE_URL
         self.url = f"{self.base_url}/chat/completions"
 
-    def recognise(self, file) -> str:
-
+    def recognise(self, file) -> tuple[str, str]:
+        """
+        Returns (recognised_text, preview_b64). The preview JPEG is the same
+        normalised image that was sent to Gemini, so the user sees exactly
+        what the model saw.
+        """
         # Reset file pointer
         file.seek(0)
 
@@ -89,4 +93,4 @@ class GeminiOCRService:
             finish_reason = choice.get('finish_reason', 'unknown')
             raise Exception(f"Model returned empty content (finish_reason: {finish_reason}).")
 
-        return content.strip()
+        return content.strip(), image_b64
