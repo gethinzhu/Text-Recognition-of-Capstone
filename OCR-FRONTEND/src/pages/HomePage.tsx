@@ -40,12 +40,23 @@ const IconDownload = () => (
     <line x1="12" y1="15" x2="12" y2="3"/>
   </svg>
 );
+const IconCamera = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+);
 
 const FEATURES = [
   {
     icon: <IconUpload />,
     title: 'Flexible File Upload',
     desc: 'Upload JPEG, PNG, TIFF, BMP, or GIF files — individually or as a batch via ZIP archive.',
+  },
+  {
+    icon: <IconCamera />,
+    title: 'Camera Capture',
+    desc: 'Capture Fraktur documents instantly using your device camera — no manual file upload needed.',
   },
   {
     icon: <IconAI />,

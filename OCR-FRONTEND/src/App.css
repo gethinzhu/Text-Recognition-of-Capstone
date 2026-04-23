@@ -295,9 +295,21 @@
 }
 
 .features-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+}
+
+.features-grid > * {
+  min-width: 200px;   
+  max-width: 220px;
+  flex: 0 0 auto;
+}
+
+.features-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .feature-card {
