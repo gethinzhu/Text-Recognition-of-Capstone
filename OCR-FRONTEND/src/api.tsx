@@ -27,6 +27,7 @@ export interface TranslateResponse {
     text?: string;
     error?: string;
     status?: string;
+    preview_b64?: string;
   };
 }
 
