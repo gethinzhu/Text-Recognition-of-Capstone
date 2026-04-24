@@ -1,4 +1,4 @@
-/* 閳光偓閳光偓 Translator Page Shell 閳光偓閳光偓 */
+/*  Translator Page Shell  */
 .translator-page {
   padding-top: 64px;
   min-height: 100vh;
@@ -46,7 +46,7 @@
   flex: 1;
 }
 
-/* 閳光偓閳光偓 Header 閳光偓閳光偓 */
+/*  Header  */
 .translator-header {
   text-align: center;
   margin-bottom: 48px;
@@ -162,7 +162,7 @@
   }
 }
 
-/* 閳光偓閳光偓 Side-by-side Panels 閳光偓閳光偓 */
+/* Side-by-side Panels */
 .translator-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -196,7 +196,7 @@
   margin-bottom: 20px;
 }
 
-/* 閳光偓閳光偓 Output Panel 閳光偓閳光偓 */
+/* Output Panel */
 .output-panel {
   min-height: 450px;
   display: flex;
@@ -299,7 +299,7 @@
   margin-bottom: 20px;
 }
 
-/* 閳光偓閳光偓 Tab Bar 閳光偓閳光偓 */
+/* Tab Bar */
 .tab-bar {
   display: flex;
   gap: 2px;
@@ -336,7 +336,7 @@
   color: #1a1a2e;
 }
 
-/* 閳光偓閳光偓 Text Input 閳光偓閳光偓 */
+/* Text Input */
 .input-label {
   font-size: 13px;
   font-weight: 500;
@@ -370,7 +370,7 @@
   background: #ffffff;
 }
 
-/* 閳光偓閳光偓 File Drop Zone 閳光偓閳光偓 */
+/* File Drop Zone */
 .file-drop-zone {
   border: 2px dashed #e5e7eb;
   border-radius: 10px;
@@ -759,7 +759,7 @@
   color: var(--text-primary);
 }
 
-/* 閳光偓閳光偓 Insufficient Credits Error 閳光偓閳光偓 */
+/* Insufficient Credits Error */
 .credits-error-card {
   display: flex;
   flex-direction: column;
@@ -827,7 +827,7 @@
   min-width: 110px;
 }
 
-/* 閳光偓閳光偓 Action Buttons 閳光偓閳光偓 */
+/* Action Buttons */
 .input-actions {
   display: flex;
   align-items: center;
@@ -887,7 +887,7 @@
   cursor: not-allowed;
 }
 
-/* 閳光偓閳光偓 Formats Bar 閳光偓閳光偓 */
+/* Formats Bar */
 .formats-bar {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -923,7 +923,7 @@
 }
 
 
-/* 閳光偓閳光偓 Responsive 閳光偓閳光偓 */
+/* Responsive */
 @media (max-width: 900px) {
   .translator-panels {
     grid-template-columns: 1fr;
