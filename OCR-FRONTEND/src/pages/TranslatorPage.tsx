@@ -761,7 +761,7 @@ const exportToDocx = async () => {
               className="view-results-link"
               onClick={() => setViewMode('results')}
             >
-              View results 闁?
+              View results →
             </button>
           </div>
         )}
