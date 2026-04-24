@@ -1,4 +1,4 @@
-/* ── Translator Page Shell ── */
+/* 鈹€鈹€ Translator Page Shell 鈹€鈹€ */
 .translator-page {
   padding-top: 64px;
   min-height: 100vh;
@@ -14,7 +14,7 @@
   flex: 1;
 }
 
-/* ── Header ── */
+/* 鈹€鈹€ Header 鈹€鈹€ */
 .translator-header {
   text-align: center;
   margin-bottom: 48px;
@@ -130,7 +130,7 @@
   }
 }
 
-/* ── Side-by-side Panels ── */
+/* 鈹€鈹€ Side-by-side Panels 鈹€鈹€ */
 .translator-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -164,7 +164,7 @@
   margin-bottom: 20px;
 }
 
-/* ── Output Panel ── */
+/* 鈹€鈹€ Output Panel 鈹€鈹€ */
 .output-panel {
   min-height: 450px;
   display: flex;
@@ -267,7 +267,7 @@
   margin-bottom: 20px;
 }
 
-/* ── Tab Bar ── */
+/* 鈹€鈹€ Tab Bar 鈹€鈹€ */
 .tab-bar {
   display: flex;
   gap: 2px;
@@ -304,7 +304,7 @@
   color: #1a1a2e;
 }
 
-/* ── Text Input ── */
+/* 鈹€鈹€ Text Input 鈹€鈹€ */
 .input-label {
   font-size: 13px;
   font-weight: 500;
@@ -338,7 +338,7 @@
   background: #ffffff;
 }
 
-/* ── File Drop Zone ── */
+/* 鈹€鈹€ File Drop Zone 鈹€鈹€ */
 .file-drop-zone {
   border: 2px dashed #e5e7eb;
   border-radius: 10px;
@@ -543,7 +543,7 @@
 }
 
 
-/* ── Output Card ── */
+/* 鈹€鈹€ Output Card 鈹€鈹€ */
 .output-card {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -612,7 +612,7 @@
   line-height: 1.5;
 }
 
-/* ── Loading State ── */
+/* 鈹€鈹€ Loading State 鈹€鈹€ */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -727,7 +727,7 @@
   color: var(--text-primary);
 }
 
-/* ── Insufficient Credits Error ── */
+/* 鈹€鈹€ Insufficient Credits Error 鈹€鈹€ */
 .credits-error-card {
   display: flex;
   flex-direction: column;
@@ -795,7 +795,7 @@
   min-width: 110px;
 }
 
-/* ── Action Buttons ── */
+/* 鈹€鈹€ Action Buttons 鈹€鈹€ */
 .input-actions {
   display: flex;
   align-items: center;
@@ -855,7 +855,7 @@
   cursor: not-allowed;
 }
 
-/* ── Formats Bar ── */
+/* 鈹€鈹€ Formats Bar 鈹€鈹€ */
 .formats-bar {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -891,7 +891,7 @@
 }
 
 
-/* ── Responsive ── */
+/* 鈹€鈹€ Responsive 鈹€鈹€ */
 @media (max-width: 900px) {
   .translator-panels {
     grid-template-columns: 1fr;
@@ -944,4 +944,87 @@
 
 .api-key-status.empty {
   color: #9ca3af; /* grey */
+}
+
+.api-key-optional.disabled {
+  color: #9ca3af;
+}
+
+
+.translator-api-floating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.translator-engine-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.translator-api-trigger,
+.translator-engine-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s, background 0.2s, color 0.2s;
+}
+
+.translator-api-trigger:hover,
+.translator-engine-trigger:hover,
+.translator-api-trigger.open {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.translator-engine-trigger.active {
+  background: #1a1a2e;
+  border-color: #1a1a2e;
+  color: #ffffff;
+}
+
+.translator-engine-trigger.active:hover {
+  border-color: #1a1a2e;
+  color: #ffffff;
+}
+
+.translator-engine-note {
+  max-width: 360px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #6b7280;
+  text-align: right;
+}
+
+.api-key-optional.disabled {
+  color: #9ca3af;
+}
+
+@media (max-width: 700px) {
+  .translator-api-floating {
+    align-items: center;
+  }
+
+  .translator-engine-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .translator-engine-note {
+    text-align: center;
+    max-width: min(360px, calc(100vw - 40px));
+  }
 }
