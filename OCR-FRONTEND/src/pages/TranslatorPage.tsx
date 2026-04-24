@@ -679,7 +679,14 @@ const exportToDocx = async () => {
               <button
                 type="button"
                 className={`translator-api-trigger${showApiPanel ? ' open' : ''}`}
-                onClick={() => setShowApiPanel((v) => !v)}
+                onClick={() => {
+                  if (isCalamariMode) {
+                    setOcrEngine('gemini');
+                    setShowApiPanel(true);
+                    return;
+                  }
+                  setShowApiPanel((v) => !v);
+                }}
                 title="API key settings"
               >
                 <FontAwesomeIcon icon={faKey} />
