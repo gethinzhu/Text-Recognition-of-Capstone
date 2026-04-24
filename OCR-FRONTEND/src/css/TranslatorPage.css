@@ -575,7 +575,7 @@
 }
 
 
-/* 閳光偓閳光偓 Output Card 閳光偓閳光偓 */
+/*  Output Card  */
 .output-card {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -644,7 +644,7 @@
   line-height: 1.5;
 }
 
-/* 閳光偓閳光偓 Loading State 閳光偓閳光偓 */
+/*  Loading State  */
 .loading-state {
   display: flex;
   flex-direction: column;
