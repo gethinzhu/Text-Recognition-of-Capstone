@@ -11,6 +11,7 @@ import {
   HeadingLevel
 } from 'docx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faPenToSquare,
   faUpload,
@@ -20,20 +21,19 @@ import {
   faEraser,
   faLanguage,
   faFileLines,
-  faFilePdf,
-  faFileWord,
-  faCopy,
   faKey,
   faEye,
   faEyeSlash
 } from '@fortawesome/free-solid-svg-icons';
+import { type ResultItem } from '../components/ResultView';
+import ResultsSection from '../components/ResultsSection';
+import {
+  CreditsErrorCard,
+  isInsufficientCreditsError,
+} from '../components/CreditsErrorCard';
+import { extractPreviews } from '../utils/extractPreviews';
 
 type Tab = 'text' | 'file' | 'camera';
-type OutputItem = {
-  fileName: string;
-  text?: string;
-  error?: string;
-};
 type CameraOption = {
   deviceId: string;
   label: string;
@@ -41,35 +41,11 @@ type CameraOption = {
 
 type OcrEngine = 'gemini' | 'calamari';
 
-const TABS: { id: Tab; icon: any; label: string }[] = [
+const TABS: { id: Tab; icon: IconDefinition; label: string }[] = [
   { id: 'text', icon: faPenToSquare, label: 'Text' },
   { id: 'file', icon: faUpload, label: 'File' },
   { id: 'camera', icon: faCamera, label: 'Camera' },
 ];
-
-function isInsufficientCreditsError(msg: string) {
-  return /insufficient|credit|balance|402|payment required/i.test(msg);
-}
-
-function CreditsErrorCard() {
-  return (
-    <div className="credits-error-card">
-      <div className="credits-error-title">Insufficient Balance</div>
-      <div className="credits-error-body">
-        Your account does not have enough credits to process this request.
-        Please top up your OpenRouter account and try again.
-      </div>
-      <a
-        className="credits-topup-link"
-        href="https://openrouter.ai/credits"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Top up on OpenRouter ->
-      </a>
-    </div>
-  );
-}
 
 export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
@@ -87,7 +63,7 @@ export default function TranslatorPage() {
   const [loadingPhase, setLoadingPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
   const [error, setError] = useState<string | null>(null);
   const loading = loadingPhase !== 'idle';
-  const [outputItems, setOutputItems] = useState<OutputItem[]>(() => {
+  const [outputItems, setOutputItems] = useState<ResultItem[]>(() => {
     try {
       const saved = sessionStorage.getItem('ocr_output_items');
       return saved ? JSON.parse(saved) : [];
@@ -95,6 +71,8 @@ export default function TranslatorPage() {
       return [];
     }
   });
+  const [filePreviews, setFilePreviews] = useState<Record<string, string>>({});
+  const [viewMode, setViewMode] = useState<'input' | 'results'>('input');
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -255,20 +233,6 @@ export default function TranslatorPage() {
     });
   };
 
-  const formatElapsedTime = (valueMs: number) => {
-    if (valueMs < 1000) {
-      return `${Math.max(0.1, valueMs / 1000).toFixed(1)} s`;
-    }
-
-    if (valueMs < 60000) {
-      return `${(valueMs / 1000).toFixed(1)} s`;
-    }
-
-    const minutes = Math.floor(valueMs / 60000);
-    const seconds = ((valueMs % 60000) / 1000).toFixed(1);
-    return `${minutes}m ${seconds}s`;
-  };
-
   useEffect(() => {
     if (!cameraActive || !videoRef.current || !streamRef.current) {
       return;
@@ -382,6 +346,8 @@ export default function TranslatorPage() {
     setCameraPreviewUrl(null);
     setCameraError(null);
     setOutputItems([]);
+    setFilePreviews({});
+    setViewMode('input');
     setCopied(false);
     setError(null);
     setProgressValue(0);
@@ -558,7 +524,7 @@ const copyOutputToClipboard = async () => {
     await navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  } catch (err) {
+  } catch {
     setError('Failed to copy output to clipboard.');
   }
 };
@@ -772,6 +738,33 @@ const exportToDocx = async () => {
         </div>
 
         {/* Side by side panel */}
+        {viewMode === 'results' && !loading && outputItems.length > 0 ? (
+          <ResultsSection
+            items={outputItems}
+            previews={filePreviews}
+            copied={copied}
+            onBack={() => setViewMode('input')}
+            onCopy={copyOutputToClipboard}
+            onExportPdf={exportToPDF}
+            onExportDocx={exportToDocx}
+            onClear={handleClear}
+          />
+        ) : (
+        <>
+        {!loading && outputItems.length > 0 && (
+          <div className="view-results-banner">
+            <span>
+              You have {outputItems.length} translated {outputItems.length === 1 ? 'file' : 'files'}.
+            </span>
+            <button
+              type="button"
+              className="view-results-link"
+              onClick={() => setViewMode('results')}
+            >
+              View results 閳?
+            </button>
+          </div>
+        )}
         <div className="translator-panels">
 
           {/* Left Input Panel */}
@@ -966,30 +959,33 @@ const exportToDocx = async () => {
                 setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
+                setFilePreviews({});
                 setProgressValue(0);
                 setElapsedMs(0);
 
                 try {
+                  const uploadPayload: string | File[] =
+                    activeTab === 'text'
+                      ? inputText
+                      : activeTab === 'file'
+                        ? selectedFiles
+                        : cameraFile
+                          ? [cameraFile]
+                          : [];
+
                   const result = await handleTranslate({
                     type: activeTab === 'text' ? 'text' : 'file',
-                    data:
-                      activeTab === 'text'
-                        ? inputText
-                        : activeTab === 'file'
-                          ? selectedFiles
-                          : cameraFile
-                            ? [cameraFile]
-                            : [],
+                    data: uploadPayload,
                     apiKey: apiKey.trim() || undefined,
                     engine: ocrEngine,
                     onUploadDone: () => setLoadingPhase('processing'),
                   });
 
-                  const formattedResults: OutputItem[] = Object.entries(result).map(
-                    ([fileName, value]: [string, any]) => ({
+                  const formattedResults: ResultItem[] = Object.entries(result).map(
+                    ([fileName, value]) => ({
                       fileName,
                       text: value?.text,
-                      error: value?.error
+                      error: value?.error,
                     })
                   );
 
@@ -999,6 +995,8 @@ const exportToDocx = async () => {
                     setError('No output received from server.');
                   } else {
                     setOutputItems(formattedResults);
+                    setFilePreviews(extractPreviews(result));
+                    setViewMode('results');
                   }
                 } catch (err) {
                   await finishProgressAnimation();
@@ -1025,22 +1023,6 @@ const exportToDocx = async () => {
           {/* Right Output Panel */}
           <div className="panel output-panel">
             <div className="panel-title">Translation Output</div>
-            {outputItems.length > 0 && !loading && (
-              <div className="output-actions">
-                <button className="btn-export copy" onClick={copyOutputToClipboard}>
-                  <FontAwesomeIcon icon={faCopy} />
-                  {copied ? 'Copied!' : 'Copy Text'}
-                </button>
-                <button className="btn-export pdf" onClick={exportToPDF}>
-                  <FontAwesomeIcon icon={faFilePdf} />
-                  Download PDF
-                </button>
-                <button className="btn-export docx" onClick={exportToDocx}>
-                  <FontAwesomeIcon icon={faFileWord} />
-                  Download DOCX
-                </button>
-              </div>
-            )}
             {loadingPhase === 'uploading' ? (
               <div className="loading-state">
                 <div className="loading-icon-wrap uploading">
@@ -1057,7 +1039,7 @@ const exportToDocx = async () => {
                     <span className="step-icon">OK</span>
                     <span>Upload complete</span>
                   </div>
-                  {(activeTab === 'file' && selectedFiles.some(f => f.name.toLowerCase().endsWith('.zip'))) && (
+                  {activeTab === 'file' && selectedFiles.some((f) => f.name.toLowerCase().endsWith('.zip')) && (
                     <div className="loading-step active">
                       <span className="step-icon spinning">...</span>
                       <span>Extracting archive...</span>
@@ -1078,23 +1060,6 @@ const exportToDocx = async () => {
               ) : (
                 <div className="output-error">{error}</div>
               )
-            ) : outputItems.length > 0 ? (
-              <div className="output-results">
-                {outputItems.map((item, index) => (
-                  <div key={index} className="output-result-card">
-                    <div className="output-file-name">{item.fileName}</div>
-                    {item.error ? (
-                      isInsufficientCreditsError(item.error) ? (
-                        <CreditsErrorCard />
-                      ) : (
-                        <div className="output-error-text">Error: {item.error}</div>
-                      )
-                    ) : (
-                      <pre className="output-text">{item.text}</pre>
-                    )}
-                  </div>
-                ))}
-              </div>
             ) : (
               <div className="output-empty">
                 <div className="output-empty-icon">
@@ -1106,6 +1071,8 @@ const exportToDocx = async () => {
           </div>
 
         </div>
+        </>
+        )}
 
         {/* Supported Formats Bar */}
         <div className="formats-bar">
