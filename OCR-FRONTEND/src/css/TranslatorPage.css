@@ -1,4 +1,4 @@
-/* 鈹€鈹€ Translator Page Shell 鈹€鈹€ */
+/* 閳光偓閳光偓 Translator Page Shell 閳光偓閳光偓 */
 .translator-page {
   padding-top: 64px;
   min-height: 100vh;
@@ -14,7 +14,7 @@
   flex: 1;
 }
 
-/* 鈹€鈹€ Header 鈹€鈹€ */
+/* 閳光偓閳光偓 Header 閳光偓閳光偓 */
 .translator-header {
   text-align: center;
   margin-bottom: 48px;
@@ -130,7 +130,7 @@
   }
 }
 
-/* 鈹€鈹€ Side-by-side Panels 鈹€鈹€ */
+/* 閳光偓閳光偓 Side-by-side Panels 閳光偓閳光偓 */
 .translator-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -164,7 +164,7 @@
   margin-bottom: 20px;
 }
 
-/* 鈹€鈹€ Output Panel 鈹€鈹€ */
+/* 閳光偓閳光偓 Output Panel 閳光偓閳光偓 */
 .output-panel {
   min-height: 450px;
   display: flex;
@@ -267,7 +267,7 @@
   margin-bottom: 20px;
 }
 
-/* 鈹€鈹€ Tab Bar 鈹€鈹€ */
+/* 閳光偓閳光偓 Tab Bar 閳光偓閳光偓 */
 .tab-bar {
   display: flex;
   gap: 2px;
@@ -304,7 +304,7 @@
   color: #1a1a2e;
 }
 
-/* 鈹€鈹€ Text Input 鈹€鈹€ */
+/* 閳光偓閳光偓 Text Input 閳光偓閳光偓 */
 .input-label {
   font-size: 13px;
   font-weight: 500;
@@ -338,7 +338,7 @@
   background: #ffffff;
 }
 
-/* 鈹€鈹€ File Drop Zone 鈹€鈹€ */
+/* 閳光偓閳光偓 File Drop Zone 閳光偓閳光偓 */
 .file-drop-zone {
   border: 2px dashed #e5e7eb;
   border-radius: 10px;
@@ -543,7 +543,7 @@
 }
 
 
-/* 鈹€鈹€ Output Card 鈹€鈹€ */
+/* 閳光偓閳光偓 Output Card 閳光偓閳光偓 */
 .output-card {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -612,7 +612,7 @@
   line-height: 1.5;
 }
 
-/* 鈹€鈹€ Loading State 鈹€鈹€ */
+/* 閳光偓閳光偓 Loading State 閳光偓閳光偓 */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -727,7 +727,7 @@
   color: var(--text-primary);
 }
 
-/* 鈹€鈹€ Insufficient Credits Error 鈹€鈹€ */
+/* 閳光偓閳光偓 Insufficient Credits Error 閳光偓閳光偓 */
 .credits-error-card {
   display: flex;
   flex-direction: column;
@@ -795,7 +795,7 @@
   min-width: 110px;
 }
 
-/* 鈹€鈹€ Action Buttons 鈹€鈹€ */
+/* 閳光偓閳光偓 Action Buttons 閳光偓閳光偓 */
 .input-actions {
   display: flex;
   align-items: center;
@@ -855,7 +855,7 @@
   cursor: not-allowed;
 }
 
-/* 鈹€鈹€ Formats Bar 鈹€鈹€ */
+/* 閳光偓閳光偓 Formats Bar 閳光偓閳光偓 */
 .formats-bar {
   background: #ffffff;
   border: 1px solid #f3f4f6;
@@ -891,7 +891,7 @@
 }
 
 
-/* 鈹€鈹€ Responsive 鈹€鈹€ */
+/* 閳光偓閳光偓 Responsive 閳光偓閳光偓 */
 @media (max-width: 900px) {
   .translator-panels {
     grid-template-columns: 1fr;
@@ -1027,4 +1027,47 @@
     text-align: center;
     max-width: min(360px, calc(100vw - 40px));
   }
+}
+
+.api-key-input-wrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 8px;
+}
+
+.api-key-status {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.api-key-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.api-key-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.api-key-toggle:hover:not(:disabled) {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+}
+
+.api-key-toggle:disabled,
+.api-key-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
