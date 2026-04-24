@@ -761,7 +761,7 @@ const exportToDocx = async () => {
               className="view-results-link"
               onClick={() => setViewMode('results')}
             >
-              View results 閳?
+              View results 闁?
             </button>
           </div>
         )}
@@ -818,6 +818,8 @@ const exportToDocx = async () => {
               ref={fileInputRef}
               type="file"
               id="file-input"
+              aria-label="Upload OCR source files"
+              title="Upload OCR source files"
               style={{ display: 'none' }}
               multiple
               onChange={(e) => handleFileChange(e.target.files)}
@@ -897,6 +899,8 @@ const exportToDocx = async () => {
                   type="file"
                   accept="image/*"
                   capture="environment"
+                  aria-label="Capture or upload a camera image"
+                  title="Capture or upload a camera image"
                   style={{ display: 'none' }}
                   onChange={(e) => handleCameraFileChange(e.target.files)}
                 />
