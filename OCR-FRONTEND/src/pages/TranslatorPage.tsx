@@ -991,7 +991,12 @@ const exportToDocx = async () => {
                     data: uploadPayload,
                     apiKey: apiKey.trim() || undefined,
                     engine: ocrEngine,
-                    onUploadDone: () => setLoadingPhase('processing'),
+                    onUploadDone: () => {
+                      setLoadingPhase('processing');
+                      if (activeTab !== 'text') {
+                        window.dispatchEvent(new Event('credits-refresh'));
+                      }
+                    },
                   });
 
                   const formattedResults: ResultItem[] = Object.entries(result).map(
