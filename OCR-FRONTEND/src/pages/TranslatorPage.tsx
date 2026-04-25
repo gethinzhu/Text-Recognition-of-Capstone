@@ -629,6 +629,10 @@ const exportToDocx = async () => {
         : Boolean(cameraFile);
   const isCalamariMode = ocrEngine === 'calamari';
   const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
+  const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
+  const engineHoverText = isCalamariMode
+    ? 'Using Calamari (free, no token usage). OCR quality can be lower than Gemini.'
+    : 'Using Gemini (best OCR quality, uses API credits/tokens).';
 
   return (
     <div className="translator-page">
@@ -659,25 +663,28 @@ const exportToDocx = async () => {
                 <span>API Key</span>
               </button>
 
-              <button
-                type="button"
-                className={`translator-engine-trigger${isCalamariMode ? ' active' : ''}`}
-                onClick={() => {
-                  setOcrEngine((current) => current === 'calamari' ? 'gemini' : 'calamari');
-                  setShowApiPanel(false);
-                }}
-                title={isCalamariMode ? 'Switch back to Gemini mode' : 'Switch to Calamari mode'}
-              >
-                <FontAwesomeIcon icon={faFileLines} />
-                <span>Calamari</span>
-              </button>
-            </div>
-
-            {isCalamariMode && (
-              <div className="translator-engine-note">
-                Calamari does not consume tokens, but as a free model its OCR quality may be less ideal than Gemini.
+              <div className="translator-engine-trigger-wrap">
+                <button
+                  type="button"
+                  className={`translator-engine-trigger mode-pill ${isCalamariMode ? 'mode-calamari' : 'mode-gemini'}`}
+                  onClick={() => {
+                    setOcrEngine((current) => current === 'calamari' ? 'gemini' : 'calamari');
+                    setShowApiPanel(false);
+                  }}
+                  role="switch"
+                  aria-checked={isCalamariMode}
+                  aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
+                >
+                  <span className="engine-switch-track" aria-hidden="true">
+                    <span className="engine-switch-thumb" />
+                  </span>
+                  <span>{engineDisplayName}</span>
+                </button>
+                <div className="translator-engine-tooltip">
+                  {engineHoverText} Click to switch to {nextEngineDisplayName}.
+                </div>
               </div>
-            )}
+            </div>
 
             {showApiPanel && (
               <div className="translator-api-popover">
