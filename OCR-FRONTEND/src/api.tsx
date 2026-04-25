@@ -40,11 +40,13 @@ export function handleTranslate(params: {
   type: 'text' | 'file';
   data: string | File | File[];
   apiKey?: string;
+  engine?: 'gemini' | 'calamari';
   onUploadDone?: () => void;
 }): Promise<TranslateResponse> {
-  const { type, data, apiKey, onUploadDone } = params;
+  const { type, data, apiKey, engine = 'gemini', onUploadDone } = params;
 
   const formData = new FormData();
+  formData.append('engine', engine);
 
   // TEXT INPUT
   if (type === 'text' && typeof data === 'string') {
@@ -100,7 +102,7 @@ export function handleTranslate(params: {
       }
     });
 
-    xhr.addEventListener('error', () => reject(new Error('Network error — could not reach server')));
+    xhr.addEventListener('error', () => reject(new Error('Network error - could not reach server')));
     xhr.addEventListener('abort', () => reject(new Error('Request was cancelled')));
 
     xhr.open('POST', `${API_BASE_URL}/upload/`);

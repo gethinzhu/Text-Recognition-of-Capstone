@@ -39,6 +39,8 @@ type CameraOption = {
   label: string;
 };
 
+type OcrEngine = 'gemini' | 'calamari';
+
 const TABS: { id: Tab; icon: IconDefinition; label: string }[] = [
   { id: 'text', icon: faPenToSquare, label: 'Text' },
   { id: 'file', icon: faUpload, label: 'File' },
@@ -55,6 +57,7 @@ export default function TranslatorPage() {
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraDevices, setCameraDevices] = useState<CameraOption[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState('');
+  const [ocrEngine, setOcrEngine] = useState<OcrEngine>('gemini');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -624,6 +627,12 @@ const exportToDocx = async () => {
       : activeTab === 'file'
         ? selectedFiles.length > 0
         : Boolean(cameraFile);
+  const isCalamariMode = ocrEngine === 'calamari';
+  const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
+  const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
+  const engineHoverText = isCalamariMode
+    ? 'Using Calamari (free, no token usage). OCR quality can be lower than Gemini.'
+    : 'Using Gemini (best OCR quality, uses API credits/tokens).';
 
   return (
     <div className="translator-page">
@@ -636,21 +645,54 @@ const exportToDocx = async () => {
             Convert historical Fraktur font documents into readable modern German text
           </p>
           <div className="translator-api-floating" ref={apiPanelRef}>
-            <button
-              type="button"
-              className="translator-api-trigger"
-              onClick={() => setShowApiPanel((v) => !v)}
-              title="API key settings"
-            >
-              <FontAwesomeIcon icon={faKey} />
-              <span>API Key</span>
-            </button>
+            <div className="translator-engine-controls">
+              <button
+                type="button"
+                className={`translator-api-trigger${showApiPanel ? ' open' : ''}`}
+                onClick={() => {
+                  if (isCalamariMode) {
+                    setOcrEngine('gemini');
+                    setShowApiPanel(true);
+                    return;
+                  }
+                  setShowApiPanel((v) => !v);
+                }}
+                title="API key settings"
+              >
+                <FontAwesomeIcon icon={faKey} />
+                <span>API Key</span>
+              </button>
+
+              <div className="translator-engine-trigger-wrap">
+                <button
+                  type="button"
+                  className={`translator-engine-trigger mode-pill ${isCalamariMode ? 'mode-calamari' : 'mode-gemini'}`}
+                  onClick={() => {
+                    setOcrEngine((current) => current === 'calamari' ? 'gemini' : 'calamari');
+                    setShowApiPanel(false);
+                  }}
+                  role="switch"
+                  aria-checked={isCalamariMode}
+                  aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
+                >
+                  <span className="engine-switch-track" aria-hidden="true">
+                    <span className="engine-switch-thumb" />
+                  </span>
+                  <span>{engineDisplayName}</span>
+                </button>
+                <div className="translator-engine-tooltip">
+                  {engineHoverText} Click to switch to {nextEngineDisplayName}.
+                </div>
+              </div>
+            </div>
 
             {showApiPanel && (
               <div className="translator-api-popover">
                 <div className="translator-api-popover-header">
                   <div className="translator-api-popover-title">OpenRouter API Key</div>
-                  <span className="api-key-optional">optional</span>
+                  <span className={`api-key-optional${isCalamariMode ? ' disabled' : ''}`}>
+                    {isCalamariMode ? 'inactive in Calamari mode' : 'optional'}
+                  </span>
                 </div>
 
                 <div className="api-key-input-wrapper">
@@ -659,7 +701,9 @@ const exportToDocx = async () => {
                       apiKey.trim() ? 'saved' : 'empty'
                     }`}
                   >
-                    {apiKey.trim() ? 'Key saved in this browser' : 'No key saved'}
+                    {isCalamariMode
+                      ? (apiKey.trim() ? 'Saved, but not used in Calamari mode' : 'No key needed in Calamari mode')
+                      : (apiKey.trim() ? 'Key saved in this browser' : 'No key saved')}
                   </div>
                   <input
                     className="api-key-input"
@@ -677,19 +721,23 @@ const exportToDocx = async () => {
                     }}
                     autoComplete="off"
                     spellCheck={false}
+                    disabled={isCalamariMode}
                   />
                   <button
                     className="api-key-toggle"
                     type="button"
                     onClick={() => setShowApiKey((v) => !v)}
                     title={showApiKey ? 'Hide key' : 'Show key'}
+                    disabled={isCalamariMode}
                   >
                     <FontAwesomeIcon icon={showApiKey ? faEyeSlash : faEye} />
                   </button>
                 </div>
 
                 <p className="translator-api-popover-hint">
-                  Your key is sent per request and stored only in your browser. Clear it when using a shared computer.
+                  {isCalamariMode
+                    ? 'Calamari mode does not use an OpenRouter key. Switch back to Gemini when you want to use your own API key.'
+                    : 'Your key is sent per request and stored only in your browser. Clear it when using a shared computer.'}
                 </p>
               </div>
             )}
@@ -726,7 +774,7 @@ const exportToDocx = async () => {
         )}
         <div className="translator-panels">
 
-          {/* Left — Input Panel */}
+          {/* Left Input Panel */}
           <div className="panel input-panel">
             <div className="panel-title">Input</div>
 
@@ -777,6 +825,8 @@ const exportToDocx = async () => {
               ref={fileInputRef}
               type="file"
               id="file-input"
+              aria-label="Upload OCR source files"
+              title="Upload OCR source files"
               style={{ display: 'none' }}
               multiple
               onChange={(e) => handleFileChange(e.target.files)}
@@ -856,6 +906,8 @@ const exportToDocx = async () => {
                   type="file"
                   accept="image/*"
                   capture="environment"
+                  aria-label="Capture or upload a camera image"
+                  title="Capture or upload a camera image"
                   style={{ display: 'none' }}
                   onChange={(e) => handleCameraFileChange(e.target.files)}
                 />
@@ -936,6 +988,7 @@ const exportToDocx = async () => {
                     type: activeTab === 'text' ? 'text' : 'file',
                     data: uploadPayload,
                     apiKey: apiKey.trim() || undefined,
+                    engine: ocrEngine,
                     onUploadDone: () => setLoadingPhase('processing'),
                   });
 
@@ -965,7 +1018,7 @@ const exportToDocx = async () => {
               }}
               >
               <FontAwesomeIcon icon={faLanguage} />
-              {loading ? 'Processing...' : (activeTab === 'text' ? 'Translate' : 'Process & Translate')}
+              {loading ? `Processing with ${engineDisplayName}...` : (activeTab === 'text' ? 'Translate' : 'Process & Translate')}
               </button>
               <button
                 className="btn-clear"
@@ -978,7 +1031,7 @@ const exportToDocx = async () => {
             </div>
           </div>
 
-          {/* Right — Output Panel */}
+          {/* Right Output Panel */}
           <div className="panel output-panel">
             <div className="panel-title">Translation Output</div>
             {loadingPhase === 'uploading' ? (
@@ -994,16 +1047,21 @@ const exportToDocx = async () => {
               <div className="loading-state">
                 <div className="loading-steps">
                   <div className="loading-step done">
-                    <span className="step-icon">✓</span>
+                    <span className="step-icon">OK</span>
                     <span>Upload complete</span>
                   </div>
+                  {activeTab === 'file' && selectedFiles.some((f) => f.name.toLowerCase().endsWith('.zip')) && (
+                    <div className="loading-step active">
+                      <span className="step-icon spinning">...</span>
+                      <span>Extracting archive...</span>
+                    </div>
+                  )}
                   <div className="loading-step active">
-                    <span className="step-icon spinning">⟳</span>
-                    <span>AI is recognising text...</span>
+                    <span className="step-icon spinning">...</span>
+                    <span>{isCalamariMode ? 'Calamari is recognising text...' : 'Gemini is recognising text...'}</span>
                   </div>
-                </div>
-                <div className="loading-warning">
-                  This may take <strong>1–3 minutes per page</strong>.<br />
+                </div>                <div className="loading-warning">
+                  This may take <strong>1-3 minutes per page</strong>.<br />
                   Please do not close or refresh this tab.
                 </div>
               </div>
@@ -1041,3 +1099,4 @@ const exportToDocx = async () => {
     </div>
   );
 }
+
