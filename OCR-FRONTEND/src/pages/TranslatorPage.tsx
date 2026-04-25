@@ -635,10 +635,11 @@ const exportToDocx = async () => {
     : 'Using Gemini (best OCR quality, uses API credits/tokens).';
 
   return (
-    <div className="translator-page">
+    <div className={`translator-page${viewMode === 'results' ? ' results-mode' : ''}`}>
       <div className="translator-container">
 
         {/* Header */}
+        {viewMode !== 'results' && (
         <div className="translator-header">
           <h1 className="translator-title">Fraktur Translator</h1>
           <p className="translator-subtitle">
@@ -743,6 +744,7 @@ const exportToDocx = async () => {
             )}
           </div>
         </div>
+        )}
 
         {/* Side by side panel */}
         {viewMode === 'results' && !loading && outputItems.length > 0 ? (

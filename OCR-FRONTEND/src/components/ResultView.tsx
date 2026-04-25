@@ -78,7 +78,9 @@ export default function ResultView({ items, previews }: Props) {
 
         <div className="panel result-output-panel">
           <div className="panel-title">Recognised Text</div>
-          {renderOutput()}
+          <div className="result-output-scroll">
+            {renderOutput()}
+          </div>
         </div>
       </div>
     </div>

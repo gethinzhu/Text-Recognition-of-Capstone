@@ -105,6 +105,17 @@
   min-height: 400px;
 }
 
+.result-output-panel {
+  min-height: 0;
+}
+
+.result-output-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
 .result-source-filename {
   font-size: 13px;
   color: #64748b;

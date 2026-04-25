@@ -6,6 +6,10 @@
   flex-direction: column;
 }
 
+.translator-page.results-mode .translator-header {
+  display: none;
+}
+
 .view-results-banner {
   display: flex;
   align-items: center;
