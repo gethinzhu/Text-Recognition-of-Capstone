@@ -1,5 +1,6 @@
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/ocr';
+const API_ROOT_URL = API_BASE_URL.replace(/\/ocr\/?$/, '');
 
 export interface CreditsResponse {
   total_credits: number;
@@ -29,6 +30,64 @@ export interface TranslateResponse {
     status?: string;
     preview_b64?: string;
   };
+}
+
+export interface ContactPayload {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}
+
+export interface ContactResponse {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  created_at: string;
+}
+
+export type ContactFieldErrors = Partial<Record<keyof ContactPayload, string>>;
+
+export class ContactApiError extends Error {
+  status: number;
+  fieldErrors?: ContactFieldErrors;
+
+  constructor(message: string, status: number, fieldErrors?: ContactFieldErrors) {
+    super(message);
+    this.name = 'ContactApiError';
+    this.status = status;
+    this.fieldErrors = fieldErrors;
+  }
+}
+
+export async function submitContactMessage(payload: ContactPayload): Promise<ContactResponse> {
+  const response = await fetch(`${API_ROOT_URL}/contact/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  let responseBody: unknown = null;
+  try {
+    responseBody = await response.json();
+  } catch {
+    responseBody = null;
+  }
+
+  if (!response.ok) {
+    const body = responseBody as { error?: string; errors?: ContactFieldErrors } | null;
+    throw new ContactApiError(
+      body?.error || 'Failed to submit contact message.',
+      response.status,
+      body?.errors
+    );
+  }
+
+  return responseBody as ContactResponse;
 }
 
 /**
