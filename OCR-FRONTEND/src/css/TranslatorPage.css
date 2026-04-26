@@ -200,90 +200,6 @@
   margin-bottom: 20px;
 }
 
-/* Output Panel */
-.output-panel {
-  min-height: 450px;
-  display: flex;
-  flex-direction: column;
-}
-
-.output-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 60px 0;
-}
-
-.output-empty-icon {
-  font-size: 40px;
-  color: #d1d5db;
-}
-
-.output-empty-text {
-  font-size: 14px;
-  color: #9ca3af;
-  font-weight: 300;
-}
-
-.progress-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  padding: 28px 8px;
-}
-
-.progress-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.progress-card-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-.progress-card-percent {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.progress-track {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #1a1a2e 0%, #3f3c68 100%);
-  transition: width 0.18s ease-out;
-}
-
-.progress-card-meta {
-  font-size: 14px;
-  font-weight: 500;
-  color: #4b5563;
-}
-
-.progress-card-hint {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #6b7280;
-}
-
 
 .input-card {
   background: #ffffff;
@@ -578,191 +494,6 @@
   color: #6b7280;
 }
 
-
-/*  Output Card  */
-.output-card {
-  background: #ffffff;
-  border: 1px solid #f3f4f6;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-  margin-bottom: 20px;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
-}
-
-.output-card-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b7280;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-
-.output-results {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 4px;
-  max-height: 360px;
-  overflow-y: auto;
-}
-
-.output-result-card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 14px;
-}
-
-.output-file-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin-bottom: 10px;
-  word-break: break-word;
-}
-
-.output-text {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #374151;
-}
-
-.output-error {
-  color: #b91c1c;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 12px 0;
-}
-
-.output-error-text {
-  color: #b91c1c;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/*  Loading State  */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.loading-icon-wrap {
-  font-size: 32px;
-  color: var(--accent);
-}
-
-.loading-icon-wrap.uploading {
-  animation: bounce-upload 1s ease-in-out infinite;
-}
-
-@keyframes bounce-upload {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.loading-title {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.loading-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.loading-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.loading-dots span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: dot-pulse 1.2s ease-in-out infinite;
-}
-
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes dot-pulse {
-  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-  40% { opacity: 1; transform: scale(1); }
-}
-
-.loading-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  max-width: 280px;
-  text-align: left;
-}
-
-.loading-step {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.loading-step.done {
-  color: #16a34a;
-  font-weight: 500;
-}
-
-.loading-step.active {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.step-icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.step-icon.spinning {
-  display: inline-block;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.loading-warning {
-  font-size: 13px;
-  color: var(--text-secondary);
-  background: rgba(var(--accent-rgb, 99, 102, 241), 0.06);
-  border: 1px solid rgba(var(--accent-rgb, 99, 102, 241), 0.15);
-  border-radius: 8px;
-  padding: 12px 16px;
-  line-height: 1.6;
-  max-width: 300px;
-}
-
-.loading-warning strong {
-  color: var(--text-primary);
-}
-
 /* Insufficient Credits Error */
 .credits-error-card {
   display: flex;
@@ -796,39 +527,6 @@
 
 .credits-topup-link:hover {
   text-decoration: underline;
-}
-
-.output-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.btn-export {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, transform 0.15s;
-}
-
-.btn-export:hover {
-  border-color: #1a1a2e;
-  color: #1a1a2e;
-  transform: translateY(-1px);
-}
-
-.btn-export.copy {
-  min-width: 110px;
 }
 
 /* Action Buttons */
@@ -952,15 +650,13 @@
   }
 
   .input-actions,
-  .camera-actions-row,
-  .output-actions {
+  .camera-actions-row{
     flex-direction: column;
     align-items: stretch;
   }
 
   .btn-translate,
   .btn-clear,
-  .btn-export,
   .camera-action-btn,
   .file-browse-btn {
     justify-content: center;
@@ -1116,9 +812,6 @@
   transform: translateY(0);
 }
 
-.api-key-optional.disabled {
-  color: #9ca3af;
-}
 
 @media (max-width: 700px) {
   .translator-api-floating {
