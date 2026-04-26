@@ -3,16 +3,21 @@ import zipfile
 import tempfile
 import os
 import logging
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import BytesIO
 
 import requests
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.http import JsonResponse, Http404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+from .models import ContactMessage
 from .serializers import (
     ALLOWED_IMAGE_TYPES,
     serialize_ocr_result,
@@ -44,6 +49,98 @@ def _validate_user_api_key(raw: str | None) -> tuple[str | None, str | None]:
         return None, "Provided API key has an invalid format."
 
     return raw, None
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ContactMessageView(View):
+    """
+    POST /api/contact/
+    Store a Contact page message after server-side validation.
+    """
+
+    def post(self, request):
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON body."}, status=400)
+
+        name = str(payload.get("name", "")).strip()
+        email = str(payload.get("email", "")).strip()
+        subject = str(payload.get("subject", "")).strip()
+        message = str(payload.get("message", "")).strip()
+
+        errors = {}
+
+        if not name:
+            errors["name"] = "Name is required."
+        elif len(name) > 120:
+            errors["name"] = "Name must be 120 characters or fewer."
+
+        if not email:
+            errors["email"] = "Email is required."
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errors["email"] = "Enter a valid email address."
+
+        if len(subject) > 200:
+            errors["subject"] = "Subject must be 200 characters or fewer."
+
+        if not message:
+            errors["message"] = "Message is required."
+
+        if errors:
+            return JsonResponse({"errors": errors}, status=400)
+
+        contact_message = ContactMessage.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message,
+        )
+
+        email_subject = subject or "New Deciffer contact message"
+        email_subject = " ".join(email_subject.splitlines())
+        email_body = (
+            "A new message was submitted from the Deciffer Contact page.\n\n"
+            f"Name: {name}\n"
+            f"Email: {email}\n"
+            f"Subject: {subject or '(No subject)'}\n\n"
+            "Message:\n"
+            f"{message}\n\n"
+            f"Saved message ID: {contact_message.id}"
+        )
+
+        try:
+            send_mail(
+                subject=email_subject,
+                message=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.CONTACT_RECIPIENT_EMAIL],
+                fail_silently=False,
+            )
+        except Exception as exc:
+            logger.exception("Failed to send contact message notification email.")
+            return JsonResponse(
+                {
+                    "error": "Message was saved, but the email notification could not be sent.",
+                    "id": str(contact_message.id),
+                },
+                status=502,
+            )
+
+        return JsonResponse(
+            {
+                "id": str(contact_message.id),
+                "name": contact_message.name,
+                "email": contact_message.email,
+                "subject": contact_message.subject,
+                "message": contact_message.message,
+                "created_at": contact_message.created_at.isoformat(),
+            },
+            status=201,
+        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")

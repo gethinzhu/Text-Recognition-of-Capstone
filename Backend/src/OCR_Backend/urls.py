@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from ocrApp.views import ContactMessageView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('api/contact/', ContactMessageView.as_view(), name='contact'),
     path('api/ocr/', include('ocrApp.urls')),
 ]

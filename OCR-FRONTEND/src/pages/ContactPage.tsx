@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { CheckCircle2, HelpCircle, Send } from 'lucide-react';
+import { ContactApiError, submitContactMessage } from '../api';
 
 type ContactForm = {
   name: string;
@@ -45,11 +46,14 @@ export default function ContactPage() {
   const [form, setForm] = useState<ContactForm>(initialForm);
   const [errors, setErrors] = useState<ContactErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateField = (field: keyof ContactForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
     setSubmitted(false);
+    setSubmitError(null);
   };
 
   const validate = () => {
@@ -73,15 +77,32 @@ export default function ContactPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    setSubmitted(true);
-    setForm(initialForm);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await submitContactMessage(form);
+      setSubmitted(true);
+      setForm(initialForm);
+    } catch (error) {
+      if (error instanceof ContactApiError) {
+        if (error.fieldErrors) {
+          setErrors(error.fieldErrors);
+        }
+        setSubmitError(error.message);
+      } else {
+        setSubmitError('Network error. Please try again later.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -101,23 +122,43 @@ export default function ContactPage() {
 
         .contact-header {
           text-align: center;
-          margin-bottom: 34px;
+          margin-bottom: 40px;
         }
 
         .contact-title {
           margin: 0;
           color: #17172a;
-          font-size: clamp(2.8rem, 4.2vw, 4.2rem);
-          line-height: 1;
-          letter-spacing: 0;
+          font-size: clamp(32px, 4vw, 48px);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          font-weight: 700;
         }
 
         .contact-subtitle {
-          margin: 18px auto 0;
+          margin: 12px auto 0;
           max-width: 640px;
-          color: #647086;
-          font-size: 1.15rem;
-          line-height: 1.65;
+          color: #6b7280;
+          font-size: 16px;
+          line-height: 1.6;
+          font-weight: 300;
+        }
+
+        .contact-email-note {
+          margin: 14px auto 0;
+          color: #4b5563;
+          font-size: 15px;
+          line-height: 1.6;
+          font-weight: 300;
+        }
+
+        .contact-email-note a {
+          color: #1a1a2e;
+          font-weight: 700;
+          text-decoration: none;
+        }
+
+        .contact-email-note a:hover {
+          text-decoration: underline;
         }
 
         .contact-card {
@@ -192,6 +233,12 @@ export default function ContactPage() {
           font-size: 0.88rem;
         }
 
+        .contact-submit-error {
+          color: #b42318;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+
         .contact-submit-row {
           display: flex;
           align-items: center;
@@ -224,6 +271,13 @@ export default function ContactPage() {
           cursor: pointer;
           box-shadow: 0 14px 28px rgba(27, 18, 9, 0.18);
           transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .contact-submit-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.68;
+          transform: none;
+          box-shadow: none;
         }
 
         .contact-submit-button:hover {
@@ -325,6 +379,10 @@ export default function ContactPage() {
           <p className="contact-subtitle">
             Have questions or feedback about the Fraktur OCR system? Send a message to the project team.
           </p>
+          <p className="contact-email-note">
+            You can also contact us directly at{' '}
+            <a href="mailto:deciffer.contact@gmail.com">deciffer.contact@gmail.com</a>.
+          </p>
         </header>
 
         <section className="contact-card" aria-label="Contact form">
@@ -397,14 +455,16 @@ export default function ContactPage() {
               {submitted ? (
                 <span className="contact-submit-success">
                   <CheckCircle2 size={18} aria-hidden="true" />
-                  Message prepared successfully.
+                  Message sent successfully.
                 </span>
+              ) : submitError ? (
+                <span className="contact-submit-error">{submitError}</span>
               ) : (
                 <span />
               )}
-              <button className="contact-submit-button" type="submit">
+              <button className="contact-submit-button" type="submit" disabled={submitting}>
                 <Send size={18} aria-hidden="true" />
-                Send message
+                {submitting ? 'Sending...' : 'Send message'}
               </button>
             </div>
           </form>
