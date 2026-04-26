@@ -122,23 +122,25 @@ export default function ContactPage() {
 
         .contact-header {
           text-align: center;
-          margin-bottom: 34px;
+          margin-bottom: 40px;
         }
 
         .contact-title {
           margin: 0;
           color: #17172a;
-          font-size: clamp(2.8rem, 4.2vw, 4.2rem);
-          line-height: 1;
-          letter-spacing: 0;
+          font-size: clamp(32px, 4vw, 48px);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          font-weight: 700;
         }
 
         .contact-subtitle {
-          margin: 18px auto 0;
+          margin: 12px auto 0;
           max-width: 640px;
-          color: #647086;
-          font-size: 1.15rem;
-          line-height: 1.65;
+          color: #6b7280;
+          font-size: 16px;
+          line-height: 1.6;
+          font-weight: 300;
         }
 
         .contact-card {
