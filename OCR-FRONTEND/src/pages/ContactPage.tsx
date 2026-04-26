@@ -143,6 +143,24 @@ export default function ContactPage() {
           font-weight: 300;
         }
 
+        .contact-email-note {
+          margin: 14px auto 0;
+          color: #4b5563;
+          font-size: 15px;
+          line-height: 1.6;
+          font-weight: 300;
+        }
+
+        .contact-email-note a {
+          color: #1a1a2e;
+          font-weight: 700;
+          text-decoration: none;
+        }
+
+        .contact-email-note a:hover {
+          text-decoration: underline;
+        }
+
         .contact-card {
           border: 1px solid #dfe4ec;
           border-radius: 8px;
@@ -360,6 +378,10 @@ export default function ContactPage() {
           <h1 className="contact-title">Contact Us</h1>
           <p className="contact-subtitle">
             Have questions or feedback about the Fraktur OCR system? Send a message to the project team.
+          </p>
+          <p className="contact-email-note">
+            You can also contact us directly at{' '}
+            <a href="mailto:deciffer.contact@gmail.com">deciffer.contact@gmail.com</a>.
           </p>
         </header>
 
