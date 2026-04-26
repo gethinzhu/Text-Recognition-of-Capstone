@@ -793,7 +793,32 @@ const exportToDocx = async () => {
             </button>
           </div>
         )}
-        <div className="translator-panels">
+        {loadingPhase === 'uploading' && (
+          <div className="processing-banner">
+            <div className="processing-spinner" />
+            <span>Uploading your file... Please wait.</span>
+          </div>
+        )}
+
+        {loadingPhase === 'processing' && (
+          <div className="processing-banner">
+            <div className="processing-spinner" />
+            <span>
+              Processing your file with {engineDisplayName}... This may take a few moments.
+            </span>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="processing-banner error">
+            {isInsufficientCreditsError(error) ? (
+              <CreditsErrorCard />
+            ) : (
+              <span>{error}</span>
+            )}
+          </div>
+        )}
+        <div className="translator-panels translator-panels-single">
 
           {/* Left Input Panel */}
           <div className="panel input-panel">
@@ -1056,57 +1081,6 @@ const exportToDocx = async () => {
               </button>
             </div>
           </div>
-
-          {/* Right Output Panel */}
-          <div className="panel output-panel">
-            <div className="panel-title">Translation Output</div>
-            {loadingPhase === 'uploading' ? (
-              <div className="loading-state">
-                <div className="loading-icon-wrap uploading">
-                  <FontAwesomeIcon icon={faUpload} />
-                </div>
-                <div className="loading-title">Uploading your files...</div>
-                <div className="loading-subtitle">Sending files to the server, please wait.</div>
-                <div className="loading-dots"><span /><span /><span /></div>
-              </div>
-            ) : loadingPhase === 'processing' ? (
-              <div className="loading-state">
-                <div className="loading-steps">
-                  <div className="loading-step done">
-                    <span className="step-icon">OK</span>
-                    <span>Upload complete</span>
-                  </div>
-                  {activeTab === 'file' && selectedFiles.some((f) => f.name.toLowerCase().endsWith('.zip')) && (
-                    <div className="loading-step active">
-                      <span className="step-icon spinning">...</span>
-                      <span>Extracting archive...</span>
-                    </div>
-                  )}
-                  <div className="loading-step active">
-                    <span className="step-icon spinning">...</span>
-                    <span>{isCalamariMode ? 'Calamari is recognising text...' : 'Gemini is recognising text...'}</span>
-                  </div>
-                </div>                <div className="loading-warning">
-                  This may take <strong>1-3 minutes per page</strong>.<br />
-                  Please do not close or refresh this tab.
-                </div>
-              </div>
-            ) : error ? (
-              isInsufficientCreditsError(error) ? (
-                <CreditsErrorCard />
-              ) : (
-                <div className="output-error">{error}</div>
-              )
-            ) : (
-              <div className="output-empty">
-                <div className="output-empty-icon">
-                  <FontAwesomeIcon icon={faFileLines} />
-                </div>
-                <div className="output-empty-text">Your translated text will appear here</div>
-              </div>
-            )}
-          </div>
-
         </div>
         </>
         )}
