@@ -48,6 +48,15 @@ OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_MODEL=google/gemini-3.1-pro-preview
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
+# Contact form email notification
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=deciffer.contact@gmail.com
+EMAIL_HOST_PASSWORD=your_gmail_app_password
+DEFAULT_FROM_EMAIL=deciffer.contact@gmail.com
+CONTACT_RECIPIENT_EMAIL=deciffer.contact@gmail.com
+
 ```
 ### Running the Backend with Docker
 
