@@ -19,12 +19,14 @@ export default function Navbar() {
     // Refresh every 60 seconds
     const id = setInterval(fetchCredits, 60_000);
 
-    // Re-fetch immediately when user changes their API key
+    // Re-fetch immediately when user changes key or finishes an upload
     window.addEventListener('apikey-changed', fetchCredits);
+    window.addEventListener('credits-refresh', fetchCredits);
 
     return () => {
       clearInterval(id);
       window.removeEventListener('apikey-changed', fetchCredits);
+      window.removeEventListener('credits-refresh', fetchCredits);
     };
   }, []);
 
