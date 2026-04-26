@@ -37,3 +37,24 @@ class OCRImage(models.Model):
 
     def __str__(self):
         return f"{self.original_filename} ({self.status})"
+
+
+class ContactMessage(models.Model):
+    """
+    Stores messages submitted from the public Contact page.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200, blank=True, default="")
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Contact Message"
+        verbose_name_plural = "Contact Messages"
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"
