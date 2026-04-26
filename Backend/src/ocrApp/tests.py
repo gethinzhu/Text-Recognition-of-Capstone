@@ -1,4 +1,5 @@
 import io
+import json
 import zipfile
 from unittest.mock import Mock, patch
 
@@ -6,6 +7,8 @@ import requests
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from PIL import Image
+
+from .models import ContactMessage
 
 
 def create_test_image(name="page.jpg", fmt="JPEG", content_type="image/jpeg"):
@@ -217,3 +220,102 @@ class CreditsApiTests(TestCase):
 
         self.assertEqual(response.status_code, 502)
         self.assertIn("Failed to reach OpenRouter", response.json()["error"])
+
+
+class ContactMessageApiTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = "/api/contact/"
+
+    @patch("ocrApp.views.send_mail")
+    def test_contact_message_success_creates_record_and_sends_email(self, mock_send_mail):
+        payload = {
+            "name": "Research User",
+            "email": "researcher@example.com",
+            "subject": "OCR feedback",
+            "message": "The OCR output needs review for one Fraktur scan.",
+        }
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(ContactMessage.objects.count(), 1)
+
+        message = ContactMessage.objects.get()
+        self.assertEqual(message.name, payload["name"])
+        self.assertEqual(message.email, payload["email"])
+        self.assertEqual(message.subject, payload["subject"])
+        self.assertEqual(message.message, payload["message"])
+
+        data = response.json()
+        self.assertEqual(data["name"], payload["name"])
+        self.assertEqual(data["email"], payload["email"])
+        mock_send_mail.assert_called_once()
+        self.assertEqual(mock_send_mail.call_args.kwargs["recipient_list"], ["deciffer.contact@gmail.com"])
+
+    def test_contact_message_required_fields_return_400(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps({"subject": "Missing required fields"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+        errors = response.json()["errors"]
+        self.assertIn("name", errors)
+        self.assertIn("email", errors)
+        self.assertIn("message", errors)
+
+    def test_contact_message_invalid_email_returns_400(self):
+        payload = {
+            "name": "Research User",
+            "email": "not-an-email",
+            "message": "Please check this OCR result.",
+        }
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertIn("email", response.json()["errors"])
+
+    def test_contact_message_invalid_json_returns_400(self):
+        response = self.client.post(
+            self.url,
+            data="{invalid json",
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(response.json()["error"], "Invalid JSON body.")
+
+    @patch("ocrApp.views.send_mail")
+    def test_contact_message_email_failure_returns_502(self, mock_send_mail):
+        mock_send_mail.side_effect = RuntimeError("SMTP unavailable")
+        payload = {
+            "name": "Research User",
+            "email": "researcher@example.com",
+            "subject": "OCR feedback",
+            "message": "The OCR output needs review for one Fraktur scan.",
+        }
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        self.assertIn("email notification could not be sent", response.json()["error"])
