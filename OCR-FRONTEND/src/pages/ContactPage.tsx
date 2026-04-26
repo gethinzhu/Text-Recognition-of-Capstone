@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { CheckCircle2, HelpCircle, Send } from 'lucide-react';
+import { ContactApiError, submitContactMessage } from '../api';
 
 type ContactForm = {
   name: string;
@@ -45,11 +46,14 @@ export default function ContactPage() {
   const [form, setForm] = useState<ContactForm>(initialForm);
   const [errors, setErrors] = useState<ContactErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateField = (field: keyof ContactForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
     setSubmitted(false);
+    setSubmitError(null);
   };
 
   const validate = () => {
@@ -73,15 +77,32 @@ export default function ContactPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    setSubmitted(true);
-    setForm(initialForm);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await submitContactMessage(form);
+      setSubmitted(true);
+      setForm(initialForm);
+    } catch (error) {
+      if (error instanceof ContactApiError) {
+        if (error.fieldErrors) {
+          setErrors(error.fieldErrors);
+        }
+        setSubmitError(error.message);
+      } else {
+        setSubmitError('Network error. Please try again later.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -192,6 +213,12 @@ export default function ContactPage() {
           font-size: 0.88rem;
         }
 
+        .contact-submit-error {
+          color: #b42318;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+
         .contact-submit-row {
           display: flex;
           align-items: center;
@@ -224,6 +251,13 @@ export default function ContactPage() {
           cursor: pointer;
           box-shadow: 0 14px 28px rgba(27, 18, 9, 0.18);
           transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .contact-submit-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.68;
+          transform: none;
+          box-shadow: none;
         }
 
         .contact-submit-button:hover {
@@ -397,14 +431,16 @@ export default function ContactPage() {
               {submitted ? (
                 <span className="contact-submit-success">
                   <CheckCircle2 size={18} aria-hidden="true" />
-                  Message prepared successfully.
+                  Message sent successfully.
                 </span>
+              ) : submitError ? (
+                <span className="contact-submit-error">{submitError}</span>
               ) : (
                 <span />
               )}
-              <button className="contact-submit-button" type="submit">
+              <button className="contact-submit-button" type="submit" disabled={submitting}>
                 <Send size={18} aria-hidden="true" />
-                Send message
+                {submitting ? 'Sending...' : 'Send message'}
               </button>
             </div>
           </form>
