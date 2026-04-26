@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Mail, Phone, MapPin, Clock, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,7 +15,7 @@ export default function ContactPage() {
     const next: Record<string, string> = {};
     if (!name.trim()) next.name = 'Name is required.';
     const em = email.trim();
-    if (!em)                   next.email = 'Email is required.';
+    if (!em)                     next.email = 'Email is required.';
     else if (!EMAIL_RE.test(em)) next.email = 'Please enter a valid email address.';
     if (!message.trim()) next.message = 'Message is required.';
     setErrors(next);
@@ -35,7 +35,6 @@ export default function ContactPage() {
   const clearError = (key: string) =>
     setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
 
-  /* ── shared input style (visual only — no padding/margin) ── */
   const inputCls = 'w-full bg-gray-100 border-0 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0f172a]';
 
   const FAQS = [
@@ -62,212 +61,145 @@ export default function ContactPage() {
   ];
 
   return (
-    /* ── Page shell: pushes content below fixed 64 px navbar ── */
-    <div
-      className="bg-[#F4F6F9]"
-      style={{ minHeight: '100vh', paddingTop: '64px', paddingBottom: '80px' }}
-    >
-      {/* ── Centred container ── */}
-      <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem' }}>
+    <div className="bg-[#F4F6F9]" style={{ minHeight: '100vh', paddingTop: '64px', paddingBottom: '80px' }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 2rem' }}>
 
-        {/* ── Section 1 · Header ── */}
+        {/* Header */}
         <header className="text-center" style={{ padding: '3rem 0 2.5rem' }}>
-          <h1 className="text-4xl font-extrabold text-[#0f172a]">Contact Us</h1>
-          <p className="text-lg text-gray-500" style={{ marginTop: '0.75rem' }}>
+          <h1
+            style={{
+              fontFamily: "'Poppins', sans-serif",
+              fontSize: 'clamp(32px, 4vw, 48px)',
+              fontWeight: 700,
+              color: '#1a1a2e',
+              letterSpacing: '-0.02em',
+              marginBottom: '0.75rem',
+            }}
+          >
+            Contact Us
+          </h1>
+          <p className="text-lg text-gray-500">
             Have questions? We&apos;d love to hear from you.
           </p>
         </header>
 
-        {/* ── Section 2 · Two-column layout ── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '35% 1fr',
-            gap: '2rem',
-            alignItems: 'start',
-          }}
-        >
-          {/* ─── Left column · info cards ─── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
-
-            {/* Email */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="bg-gray-100 rounded-xl" style={{ padding: '0.5rem', display: 'inline-flex' }}>
-                  <Mail size={20} className="text-[#0f172a]" />
-                </div>
-                <h3 className="font-bold text-[#0f172a]">Email</h3>
+        {/* Contact Form */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '2rem' }}>
+          {success ? (
+            <div className="text-center" style={{ padding: '3rem 0' }}>
+              <div
+                className="inline-flex items-center justify-center rounded-full bg-green-100"
+                style={{ padding: '0.75rem', marginBottom: '1rem' }}
+              >
+                <Check className="text-green-600" size={32} strokeWidth={2.5} aria-hidden />
               </div>
-              <p className="text-sm text-gray-500" style={{ wordBreak: 'break-all' }}>support@deciffer.com</p>
-              <p className="text-sm text-gray-500" style={{ marginTop: '0.25rem', wordBreak: 'break-all' }}>info@deciffer.com</p>
-            </div>
-
-            {/* Phone */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="bg-gray-100 rounded-xl" style={{ padding: '0.5rem', display: 'inline-flex' }}>
-                  <Phone size={20} className="text-[#0f172a]" />
-                </div>
-                <h3 className="font-bold text-[#0f172a]">Phone</h3>
-              </div>
-              <p className="text-sm text-gray-500">+49 (0) 123 456 789</p>
-              <p className="text-sm text-gray-500" style={{ marginTop: '0.25rem' }}>Mon–Fri, 9am–5pm CET</p>
-            </div>
-
-            {/* Office */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="bg-gray-100 rounded-xl" style={{ padding: '0.5rem', display: 'inline-flex' }}>
-                  <MapPin size={20} className="text-[#0f172a]" />
-                </div>
-                <h3 className="font-bold text-[#0f172a]">Office</h3>
-              </div>
-              <p className="text-sm text-gray-500">35 Stirling Hwy, Crawley WA 6009</p>
-              <p className="text-sm text-gray-500" style={{ marginTop: '0.25rem' }}>Perth, Australia</p>
-            </div>
-
-            {/* Support Hours */}
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-sm" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="bg-blue-100 rounded-xl" style={{ padding: '0.5rem', display: 'inline-flex' }}>
-                  <Clock size={20} className="text-[#0f172a]" />
-                </div>
-                <h3 className="font-bold text-[#0f172a]">Support Hours</h3>
-              </div>
-              <p className="text-sm text-gray-600">
-                <strong className="text-[#0f172a]">Monday – Friday:</strong> 9:00 AM – 5:00 PM
+              <p className="font-semibold text-[#0f172a] text-lg">Message sent!</p>
+              <p className="text-sm text-gray-500" style={{ marginTop: '0.5rem' }}>
+                We&apos;ll get back to you within 24 hours.
               </p>
-              <p className="text-sm text-gray-600" style={{ marginTop: '0.35rem' }}>
-                <strong className="text-[#0f172a]">Saturday:</strong> 10:00 AM – 2:00 PM
-              </p>
-              <p className="text-sm text-gray-600" style={{ marginTop: '0.35rem' }}>
-                <strong className="text-[#0f172a]">Sunday:</strong> Closed
-              </p>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="text-sm font-medium text-[#0f172a] underline underline-offset-2 hover:text-[#1e293b] transition"
+                style={{ marginTop: '1.5rem', display: 'block', margin: '1.5rem auto 0' }}
+              >
+                Send another message
+              </button>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmit} noValidate>
 
-          {/* ─── Right column · form + FAQ ─── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
-            {/* Contact Form card */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '2rem' }}>
-              {success ? (
-                <div className="text-center" style={{ padding: '3rem 0' }}>
-                  <div
-                    className="inline-flex items-center justify-center rounded-full bg-green-100"
-                    style={{ padding: '0.75rem', marginBottom: '1rem' }}
-                  >
-                    <Check className="text-green-600" size={32} strokeWidth={2.5} aria-hidden />
-                  </div>
-                  <p className="font-semibold text-[#0f172a] text-lg">Message sent!</p>
-                  <p className="text-sm text-gray-500" style={{ marginTop: '0.5rem' }}>
-                    We&apos;ll get back to you within 24 hours.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="text-sm font-medium text-[#0f172a] underline underline-offset-2 hover:text-[#1e293b] transition"
-                    style={{ marginTop: '1.5rem', display: 'block', margin: '1.5rem auto 0' }}
-                  >
-                    Send another message
-                  </button>
+              {/* Row 1 · Name + Email */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
+                    Name *
+                  </label>
+                  <input
+                    id="contact-name" name="name" type="text" autoComplete="name"
+                    placeholder="Your name" value={name}
+                    onChange={(e) => { setName(e.target.value); if (errors.name) clearError('name'); }}
+                    className={inputCls} style={{ padding: '0.75rem 1rem' }}
+                  />
+                  {errors.name && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.name}</p>}
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} noValidate>
+                <div>
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
+                    Email *
+                  </label>
+                  <input
+                    id="contact-email" name="email" type="email" autoComplete="email"
+                    placeholder="your.email@example.com" value={email}
+                    onChange={(e) => { setEmail(e.target.value); if (errors.email) clearError('email'); }}
+                    className={inputCls} style={{ padding: '0.75rem 1rem' }}
+                  />
+                  {errors.email && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.email}</p>}
+                </div>
+              </div>
 
-                  {/* Row 1 · Name + Email */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                      <label htmlFor="contact-name" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
-                        Name *
-                      </label>
-                      <input
-                        id="contact-name" name="name" type="text" autoComplete="name"
-                        placeholder="Your name" value={name}
-                        onChange={(e) => { setName(e.target.value); if (errors.name) clearError('name'); }}
-                        className={inputCls} style={{ padding: '0.75rem 1rem' }}
-                      />
-                      {errors.name && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.name}</p>}
-                    </div>
-                    <div>
-                      <label htmlFor="contact-email" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
-                        Email *
-                      </label>
-                      <input
-                        id="contact-email" name="email" type="email" autoComplete="email"
-                        placeholder="your.email@example.com" value={email}
-                        onChange={(e) => { setEmail(e.target.value); if (errors.email) clearError('email'); }}
-                        className={inputCls} style={{ padding: '0.75rem 1rem' }}
-                      />
-                      {errors.email && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.email}</p>}
-                    </div>
-                  </div>
+              {/* Row 2 · Subject */}
+              <div style={{ marginTop: '1rem' }}>
+                <label htmlFor="contact-subject" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
+                  Subject
+                </label>
+                <input
+                  id="contact-subject" name="subject" type="text"
+                  placeholder="What is this regarding?" value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className={inputCls} style={{ padding: '0.75rem 1rem' }}
+                />
+              </div>
 
-                  {/* Row 2 · Subject */}
-                  <div style={{ marginTop: '1rem' }}>
-                    <label htmlFor="contact-subject" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
-                      Subject
-                    </label>
-                    <input
-                      id="contact-subject" name="subject" type="text"
-                      placeholder="What is this regarding?" value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      className={inputCls} style={{ padding: '0.75rem 1rem' }}
-                    />
-                  </div>
+              {/* Row 3 · Message */}
+              <div style={{ marginTop: '1rem' }}>
+                <label htmlFor="contact-message" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
+                  Message *
+                </label>
+                <textarea
+                  id="contact-message" name="message" rows={6}
+                  placeholder="Tell us how we can help you..." value={message}
+                  onChange={(e) => { setMessage(e.target.value); if (errors.message) clearError('message'); }}
+                  className={`${inputCls} resize-y`}
+                  style={{ padding: '0.75rem 1rem', minHeight: '180px' }}
+                />
+                {errors.message && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.message}</p>}
+              </div>
 
-                  {/* Row 3 · Message */}
-                  <div style={{ marginTop: '1rem' }}>
-                    <label htmlFor="contact-message" className="block text-sm font-medium text-[#0f172a]" style={{ marginBottom: '0.25rem' }}>
-                      Message *
-                    </label>
-                    <textarea
-                      id="contact-message" name="message" rows={6}
-                      placeholder="Tell us how we can help you..." value={message}
-                      onChange={(e) => { setMessage(e.target.value); if (errors.message) clearError('message'); }}
-                      className={`${inputCls} resize-y`}
-                      style={{ padding: '0.75rem 1rem', minHeight: '180px' }}
-                    />
-                    {errors.message && <p className="text-red-600 text-xs" style={{ marginTop: '0.375rem' }} role="alert">{errors.message}</p>}
-                  </div>
+              {/* Submit */}
+              <button
+                type="submit"
+                className="w-full bg-[#0f172a] text-white rounded-xl font-semibold text-sm hover:bg-[#1e293b] transition"
+                style={{ padding: '0.75rem', marginTop: '1.5rem' }}
+              >
+                Send Message
+              </button>
+              <p className="text-xs text-gray-400 text-center" style={{ marginTop: '0.5rem' }}>
+                * Required fields. We typically respond within 24 hours.
+              </p>
+            </form>
+          )}
+        </div>
 
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    className="w-full bg-[#0f172a] text-white rounded-xl font-semibold text-sm hover:bg-[#1e293b] transition"
-                    style={{ padding: '0.75rem', marginTop: '1.5rem' }}
-                  >
-                    Send Message
-                  </button>
-                  <p className="text-xs text-gray-400 text-center" style={{ marginTop: '0.5rem' }}>
-                    * Required fields. We typically respond within 24 hours.
-                  </p>
-                </form>
-              )}
-            </div>
+        {/* FAQ card */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '2rem', marginTop: '2rem' }}>
+          <h2 className="text-xl font-bold text-[#0f172a]" style={{ marginBottom: '1.5rem' }}>
+            Frequently Asked Questions
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {FAQS.map(({ q, a }, i) => (
+              <li
+                key={i}
+                className={i < FAQS.length - 1 ? 'border-b border-gray-100' : ''}
+                style={{ padding: i < FAQS.length - 1 ? '0 0 1rem' : '0', marginBottom: i < FAQS.length - 1 ? '1rem' : '0' }}
+              >
+                <p className="font-semibold text-[#0f172a] text-sm">{q}</p>
+                <p className="text-gray-500 text-sm" style={{ marginTop: '0.25rem', lineHeight: '1.6' }}>{a}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-            {/* FAQ card */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm" style={{ padding: '2rem' }}>
-              <h2 className="text-xl font-bold text-[#0f172a]" style={{ marginBottom: '1.5rem' }}>
-                Frequently Asked Questions
-              </h2>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {FAQS.map(({ q, a }, i) => (
-                  <li
-                    key={i}
-                    className={i < FAQS.length - 1 ? 'border-b border-gray-100' : ''}
-                    style={{ padding: i < FAQS.length - 1 ? '0 0 1rem' : '0', marginBottom: i < FAQS.length - 1 ? '1rem' : '0' }}
-                  >
-                    <p className="font-semibold text-[#0f172a] text-sm">{q}</p>
-                    <p className="text-gray-500 text-sm" style={{ marginTop: '0.25rem', lineHeight: '1.6' }}>{a}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-          </div>{/* end right column */}
-        </div>{/* end two-column grid */}
-      </div>{/* end centred container */}
+      </div>
     </div>
   );
 }
