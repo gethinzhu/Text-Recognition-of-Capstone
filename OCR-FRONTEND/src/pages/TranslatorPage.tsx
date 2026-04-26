@@ -665,22 +665,41 @@ const exportToDocx = async () => {
               </button>
 
               <div className="translator-engine-trigger-wrap">
-                <button
-                  type="button"
-                  className={`translator-engine-trigger mode-pill ${isCalamariMode ? 'mode-calamari' : 'mode-gemini'}`}
-                  onClick={() => {
-                    setOcrEngine((current) => current === 'calamari' ? 'gemini' : 'calamari');
-                    setShowApiPanel(false);
-                  }}
-                  role="switch"
-                  aria-checked={isCalamariMode}
-                  aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
-                >
-                  <span className="engine-switch-track" aria-hidden="true">
-                    <span className="engine-switch-thumb" />
-                  </span>
-                  <span>{engineDisplayName}</span>
-                </button>
+                {isCalamariMode ? (
+                  <button
+                    type="button"
+                    className="translator-engine-trigger mode-pill mode-calamari"
+                    onClick={() => {
+                      setOcrEngine('gemini');
+                      setShowApiPanel(false);
+                    }}
+                    role="switch"
+                    aria-checked="true"
+                    aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
+                  >
+                    <span className="engine-switch-track" aria-hidden="true">
+                      <span className="engine-switch-thumb" />
+                    </span>
+                    <span>{engineDisplayName}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="translator-engine-trigger mode-pill mode-gemini"
+                    onClick={() => {
+                      setOcrEngine('calamari');
+                      setShowApiPanel(false);
+                    }}
+                    role="switch"
+                    aria-checked="false"
+                    aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
+                  >
+                    <span className="engine-switch-track" aria-hidden="true">
+                      <span className="engine-switch-thumb" />
+                    </span>
+                    <span>{engineDisplayName}</span>
+                  </button>
+                )}
                 <div className="translator-engine-tooltip">
                   {engineHoverText} Click to switch to {nextEngineDisplayName}.
                 </div>
