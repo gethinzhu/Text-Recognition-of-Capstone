@@ -628,6 +628,7 @@ const exportToDocx = async () => {
         ? selectedFiles.length > 0
         : Boolean(cameraFile);
   const isCalamariMode = ocrEngine === 'calamari';
+  const isTextCalamariBlocked = activeTab === 'text' && isCalamariMode;
   const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
   const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
   const engineHoverText = isCalamariMode
@@ -1017,8 +1018,11 @@ const exportToDocx = async () => {
             <div className="input-actions">
               <button 
               className="btn-translate" 
-              disabled={!hasInput || loading}
+              disabled={!hasInput || loading || isTextCalamariBlocked}
               onClick={async () => {
+                if (isTextCalamariBlocked) {
+                  return;
+                }
                 setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
@@ -1048,9 +1052,6 @@ const exportToDocx = async () => {
                       }
                     },
                   });
-                  if (activeTab === 'text') {
-                    window.dispatchEvent(new Event('credits-refresh'));
-                  }
 
                   const formattedResults: ResultItem[] = Object.entries(result).map(
                     ([fileName, value]) => ({
