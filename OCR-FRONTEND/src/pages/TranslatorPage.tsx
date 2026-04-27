@@ -628,6 +628,7 @@ const exportToDocx = async () => {
         ? selectedFiles.length > 0
         : Boolean(cameraFile);
   const isCalamariMode = ocrEngine === 'calamari';
+  const isTextCalamariBlocked = activeTab === 'text' && isCalamariMode;
   const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
   const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
   const engineHoverText = isCalamariMode
@@ -841,14 +842,14 @@ const exportToDocx = async () => {
             {/* Text Tab */}
             {activeTab === 'text' && (
               <>
-                <div className="input-label text-input-label">
-                  <span>Enter Fraktur Text</span>
-                  <span className="text-input-note" role="note">
-                    <span className="text-input-note-icon" aria-hidden="true">!</span>
-                    Calamari only works with image data and cannot recognise typed text. Text input is processed with the Gemini API only.
-                  </span>
-                </div>
+                  {isCalamariMode && (
+                    <span className="text-input-note" role="note">
+                      <span className="text-input-note-icon" aria-hidden="true">!</span>
+                      Calamari only works with image data and cannot recognise typed text. Text input is processed with the Gemini API only.
+                    </span>
+                  )}
                 <textarea
+                id="fraktur-textarea"
                   className="fraktur-textarea"
                   placeholder="Paste or type your Fraktur text here..."
                   value={inputText}
@@ -1017,8 +1018,11 @@ const exportToDocx = async () => {
             <div className="input-actions">
               <button 
               className="btn-translate" 
-              disabled={!hasInput || loading}
+              disabled={!hasInput || loading || isTextCalamariBlocked}
               onClick={async () => {
+                if (isTextCalamariBlocked) {
+                  return;
+                }
                 setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
@@ -1053,6 +1057,7 @@ const exportToDocx = async () => {
                     ([fileName, value]) => ({
                       fileName,
                       text: value?.text,
+                      sourceText: activeTab === 'text' ? inputText : undefined,
                       error: value?.error,
                     })
                   );

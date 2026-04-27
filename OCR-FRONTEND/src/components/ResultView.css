@@ -167,6 +167,20 @@
   border: 1px dashed #e5e7eb;
 }
 
+.result-source-text {
+  margin: 0;
+  padding: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  color: #1f2937;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 600px;
+}
+
 @media (max-width: 900px) {
   .result-view-panels {
     grid-template-columns: 1fr;
