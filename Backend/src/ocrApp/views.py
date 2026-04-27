@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 # We validate the format so only well-formed keys are forwarded.
 _API_KEY_RE = re.compile(r'^sk-or-v1-[A-Za-z0-9]{1,200}$')
 _API_KEY_MAX_LEN = 220  # hard upper bound to prevent oversized header abuse
+_TEXT_INPUT_MAX_CHARS = 20000
 
 
 def _validate_user_api_key(raw: str | None) -> tuple[str | None, str | None]:
@@ -140,6 +141,51 @@ class ContactMessageView(View):
                 "created_at": contact_message.created_at.isoformat(),
             },
             status=201,
+        )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class TextRecogniseView(View):
+    """
+    POST /api/ocr/text/
+    Process direct text input without routing it through image upload validation.
+    """
+
+    def post(self, request):
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON body."}, status=400)
+
+        text = str(payload.get("text", "")).strip()
+        if not text:
+            return JsonResponse({"error": "No text provided."}, status=400)
+
+        if len(text) > _TEXT_INPUT_MAX_CHARS:
+            return JsonResponse(
+                {"error": f"Text input exceeds {_TEXT_INPUT_MAX_CHARS} characters."},
+                status=400,
+            )
+
+        raw_key = request.headers.get("X-User-Api-Key") or None
+        user_api_key, key_error = _validate_user_api_key(raw_key)
+        if key_error:
+            return JsonResponse({"error": key_error}, status=400)
+
+        service = GeminiOCRService(api_key=user_api_key)
+
+        try:
+            processed_text = service.process_text(text)
+        except Exception as exc:
+            logger.exception("Failed to process direct text input.")
+            return JsonResponse(
+                {"text-input.txt": {"error": str(exc)}},
+                status=200,
+            )
+
+        return JsonResponse(
+            {"text-input.txt": {"text": processed_text}},
+            status=200,
         )
 
 

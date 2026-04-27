@@ -104,17 +104,52 @@ export function handleTranslate(params: {
 }): Promise<TranslateResponse> {
   const { type, data, apiKey, engine = 'gemini', onUploadDone } = params;
 
+  // TEXT INPUT
+  if (type === 'text') {
+    if (typeof data !== 'string') {
+      return Promise.reject(new Error(`Invalid input: type='${type}' does not match data`));
+    }
+
+    const text = data.trim();
+    if (!text) {
+      return Promise.reject(new Error('No text provided.'));
+    }
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (apiKey?.trim()) {
+      headers['X-User-Api-Key'] = apiKey.trim();
+    }
+
+    onUploadDone?.();
+
+    return fetch(`${API_BASE_URL}/text/`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ text, engine }),
+    }).then(async (response) => {
+      let responseBody: unknown = null;
+      try {
+        responseBody = await response.json();
+      } catch {
+        responseBody = null;
+      }
+
+      if (!response.ok) {
+        const body = responseBody as { error?: string } | null;
+        throw new Error(body?.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return responseBody as TranslateResponse;
+    });
+  }
+
   const formData = new FormData();
   formData.append('engine', engine);
 
-  // TEXT INPUT
-  if (type === 'text' && typeof data === 'string') {
-    const file = new File([data], 'text-input.txt', { type: 'text/plain' });
-    formData.append('images', file);
-  }
-
   // FILE INPUT (single OR multiple)
-  else if (type === 'file') {
+  if (type === 'file') {
     const files = (Array.isArray(data) ? data : [data]) as File[];
 
     const allowedTypes = [

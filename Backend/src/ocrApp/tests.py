@@ -158,6 +158,69 @@ class UploadApiTests(TestCase):
         self.assertIn("OpenRouter unavailable", data["page.jpg"]["error"])
 
 
+class TextInputApiTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = "/api/ocr/text/"
+
+    @patch("ocrApp.views.GeminiOCRService")
+    def test_text_input_returns_mocked_text_result(self, mock_service_class):
+        mock_service = mock_service_class.return_value
+        mock_service.process_text.return_value = "Modern German text"
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps({"text": "Historischer Fraktur Text"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        self.assertIn("text-input.txt", data)
+        self.assertEqual(data["text-input.txt"]["text"], "Modern German text")
+        mock_service_class.assert_called_once_with(api_key=None)
+        mock_service.process_text.assert_called_once_with("Historischer Fraktur Text")
+
+    def test_text_input_without_text_returns_400(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps({"text": "   "}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "No text provided.")
+
+    def test_text_input_invalid_user_api_key_returns_400(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps({"text": "Historischer Fraktur Text"}),
+            content_type="application/json",
+            HTTP_X_USER_API_KEY="invalid-key",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("invalid format", response.json()["error"])
+
+    @patch("ocrApp.views.GeminiOCRService")
+    def test_text_service_failure_returns_per_input_error(self, mock_service_class):
+        mock_service = mock_service_class.return_value
+        mock_service.process_text.side_effect = RuntimeError("OpenRouter unavailable")
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps({"text": "Historischer Fraktur Text"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        self.assertIn("text-input.txt", data)
+        self.assertIn("OpenRouter unavailable", data["text-input.txt"]["error"])
+
+
 class CreditsApiTests(TestCase):
     def setUp(self):
         self.client = Client()
