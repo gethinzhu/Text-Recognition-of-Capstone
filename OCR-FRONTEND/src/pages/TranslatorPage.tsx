@@ -841,7 +841,13 @@ const exportToDocx = async () => {
             {/* Text Tab */}
             {activeTab === 'text' && (
               <>
-                <div className="input-label">Enter Fraktur Text</div>
+                <div className="input-label text-input-label">
+                  <span>Enter Fraktur Text</span>
+                  <span className="text-input-note" role="note">
+                    <span className="text-input-note-icon" aria-hidden="true">!</span>
+                    Calamari only works with image data and cannot recognise typed text. Text input is processed with the Gemini API only.
+                  </span>
+                </div>
                 <textarea
                   className="fraktur-textarea"
                   placeholder="Paste or type your Fraktur text here..."
