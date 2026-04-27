@@ -5,6 +5,7 @@ import './ResultView.css';
 export type ResultItem = {
   fileName: string;
   text?: string;
+  sourceText?: string;
   error?: string;
 };
 
@@ -31,6 +32,7 @@ export default function ResultView({ items, previews }: Props) {
   const safeIndex = Math.min(activeIndex, items.length - 1);
   const active = items[safeIndex];
   const activePreview = previews[active.fileName];
+  const hasSourceText = typeof active.sourceText === 'string' && active.sourceText.length > 0;
   const minZoom = 1;
   const maxZoom = 4;
 
@@ -165,9 +167,11 @@ export default function ResultView({ items, previews }: Props) {
 
       <div className="result-view-panels">
         <div className="panel result-source-panel">
-          <div className="panel-title">Source File</div>
-          <div className="result-source-filename">{active.fileName}</div>
-          {activePreview ? (
+          <div className="panel-title">{hasSourceText ? 'Input Text' : 'Source File'}</div>
+          {!hasSourceText && <div className="result-source-filename">{active.fileName}</div>}
+          {hasSourceText ? (
+            <pre className="result-source-text">{active.sourceText}</pre>
+          ) : activePreview ? (
             <div
               ref={viewportRef}
               className={`result-source-viewport${zoom > minZoom ? ' zoomed' : ''}${isPanning ? ' panning' : ''}`}

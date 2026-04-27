@@ -1048,11 +1048,15 @@ const exportToDocx = async () => {
                       }
                     },
                   });
+                  if (activeTab === 'text') {
+                    window.dispatchEvent(new Event('credits-refresh'));
+                  }
 
                   const formattedResults: ResultItem[] = Object.entries(result).map(
                     ([fileName, value]) => ({
                       fileName,
                       text: value?.text,
+                      sourceText: activeTab === 'text' ? inputText : undefined,
                       error: value?.error,
                     })
                   );
