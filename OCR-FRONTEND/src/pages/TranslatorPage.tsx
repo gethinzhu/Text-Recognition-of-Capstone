@@ -641,9 +641,9 @@ const exportToDocx = async () => {
         {/* Header */}
         {viewMode !== 'results' && (
         <div className="translator-header">
-          <h1 className="translator-title">Fraktur Translator</h1>
+          <h1 className="translator-title">Fraktur Text Recogniser</h1>
           <p className="translator-subtitle">
-            Convert historical Fraktur font documents into readable modern German text
+            Recognise historical Fraktur documents and convert them into readable modern text
           </p>
           <div className="translator-api-floating" ref={apiPanelRef}>
             <div className="translator-engine-controls">
@@ -782,7 +782,7 @@ const exportToDocx = async () => {
         {!loading && outputItems.length > 0 && (
           <div className="view-results-banner">
             <span>
-              You have {outputItems.length} translated {outputItems.length === 1 ? 'file' : 'files'}.
+              You have {outputItems.length} recognised {outputItems.length === 1 ? 'file' : 'files'}.
             </span>
             <button
               type="button"
@@ -804,7 +804,7 @@ const exportToDocx = async () => {
           <div className="processing-banner">
             <div className="processing-spinner" />
             <span>
-              Processing your file with {engineDisplayName}... This may take a few moments.
+              Recognising your file with {engineDisplayName}... This may take a few moments.
             </span>
           </div>
         )}
@@ -1075,7 +1075,7 @@ const exportToDocx = async () => {
               }}
               >
               <FontAwesomeIcon icon={faLanguage} />
-              {loading ? `Processing with ${engineDisplayName}...` : (activeTab === 'text' ? 'Translate' : 'Process & Translate')}
+              {loading ? `Recognising with ${engineDisplayName}...` : 'Recognise Text'}
               </button>
               <button
                 className="btn-clear"
