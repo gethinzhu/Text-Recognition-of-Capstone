@@ -20,7 +20,6 @@ import {
   faRotateLeft,
   faEraser,
   faLanguage,
-  faFileLines,
   faKey,
   faEye,
   faEyeSlash
@@ -1059,6 +1058,7 @@ const exportToDocx = async () => {
                       text: value?.text,
                       sourceText: activeTab === 'text' ? inputText : undefined,
                       error: value?.error,
+                      engine: value?.engine ?? ocrEngine,
                     })
                   );
 

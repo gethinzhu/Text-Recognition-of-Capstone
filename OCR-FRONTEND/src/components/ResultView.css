@@ -110,6 +110,31 @@
   min-height: 0;
 }
 
+.calamari-result-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.calamari-result-warning-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: #d97706;
+}
+
 .result-output-scroll {
   flex: 1;
   min-height: 0;
