@@ -1,5 +1,6 @@
 # ocrApp/calamari_ocr_service.py
 
+import re
 import subprocess
 import tempfile
 from io import BytesIO
@@ -11,6 +12,15 @@ from kraken import blla, binarization
 from kraken.lib import vgsl
 
 from .preprocessing import convert_file_to_base64_jpg
+
+
+def merge_calamari_lines(lines: list[str]) -> str:
+    text = " ".join(line.strip() for line in lines if line.strip())
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"(\w)-\s+(\w)", r"\1\2", text)
+    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    text = re.sub(r"([([{])\s+", r"\1", text)
+    return text
 
 
 class CalamariOCRService:
@@ -182,4 +192,4 @@ class CalamariOCRService:
 
                     break
 
-        return "\n".join(recognised_lines)
+        return merge_calamari_lines(recognised_lines)
