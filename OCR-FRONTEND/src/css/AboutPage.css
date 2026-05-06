@@ -1,0 +1,160 @@
+/* ── About Page Shell ── */
+.about-shell {
+  min-height: calc(100vh - 64px);
+  padding-top: 64px;
+  padding-bottom: 80px;
+  background: #f9fafb;
+}
+
+.about-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ── Hero Header ── */
+.about-header {
+  text-align: center;
+  padding: 3rem 0 2.5rem;
+}
+
+.about-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.about-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Description Card ── */
+.about-desc-card {
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-desc-text {
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.75;
+  margin: 0 0 1rem;
+}
+
+.about-desc-text:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Feature Cards Grid ── */
+.about-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.about-feature-card {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.about-feature-icon-wrap {
+  padding: 0.6rem;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.about-feature-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 0.4rem;
+}
+
+.about-feature-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Who Uses Section ── */
+.about-users-section {
+  margin-bottom: 1.5rem;
+}
+
+.about-users-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+
+.about-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.about-user-card {
+  padding: 1.25rem 1.5rem;
+}
+
+.about-user-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 0.35rem;
+}
+
+.about-user-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Note on Technology ── */
+.about-note-card {
+  padding: 1.5rem;
+  background: #fefce8;
+}
+
+.about-note-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 0.5rem;
+}
+
+.about-note-text {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .about-container {
+    padding: 0 20px;
+  }
+
+  .about-features-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,4 +1,5 @@
 import { BookOpen, Users, Award, Zap } from 'lucide-react';
+import '../css/AboutPage.css';
 
 const FEATURES = [
   {
@@ -44,39 +45,25 @@ const USER_GROUPS = [
 
 export default function AboutPage() {
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '64px', paddingBottom: '80px', background: '#f9fafb' }}>
-      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '0 2rem' }}>
+    <div className="about-shell">
+      <div className="about-container">
 
         {/* ── Hero ── */}
-        <header className="text-center" style={{ padding: '3rem 0 2.5rem' }}>
-          <h1
-            style={{
-              fontFamily: "'Poppins', sans-serif",
-              fontSize: 'clamp(32px, 4vw, 48px)',
-              fontWeight: 700,
-              color: '#1a1a2e',
-              letterSpacing: '-0.02em',
-              marginBottom: '0.75rem',
-            }}
-          >
-            About Deciffer
-          </h1>
-          <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: 1.6 }}>
+        <header className="about-header">
+          <h1 className="about-title">About Deciffer</h1>
+          <p className="about-subtitle">
             Making historical German Fraktur documents accessible to researchers and archivists
           </p>
         </header>
 
         {/* ── Description card ── */}
-        <div
-          className="bg-white border border-gray-200 rounded-2xl shadow-sm"
-          style={{ padding: '2rem', marginBottom: '1.5rem' }}
-        >
-          <p style={{ fontSize: '0.95rem', color: '#374151', lineHeight: 1.75, marginBottom: '1rem' }}>
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm about-desc-card">
+          <p className="about-desc-text">
             Deciffer is an AI-powered OCR tool designed to convert scanned historical German newspapers printed
             in Fraktur script into clean, searchable, and exportable digital text — bridging the gap between
             20th-century printed archives and modern research workflows.
           </p>
-          <p style={{ fontSize: '0.95rem', color: '#374151', lineHeight: 1.75 }}>
+          <p className="about-desc-text">
             Fraktur was the dominant typeface in German-speaking countries from the 16th century through to the
             mid-20th century. While historically significant, its letterforms present major challenges for
             standard OCR engines. Deciffer addresses this by using a multimodal vision model (Google Gemini via
@@ -86,100 +73,43 @@ export default function AboutPage() {
         </div>
 
         {/* ── Feature cards (2-column grid) ── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '1rem',
-            marginBottom: '2.5rem',
-          }}
-        >
+        <div className="about-features-grid">
           {FEATURES.map(({ icon, title, desc }) => (
             <div
               key={title}
-              className="bg-white border border-gray-200 rounded-2xl shadow-sm"
-              style={{ padding: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}
+              className="bg-white border border-gray-200 rounded-2xl shadow-sm about-feature-card"
             >
-              <div
-                className="bg-gray-100 rounded-xl flex-shrink-0"
-                style={{ padding: '0.6rem', display: 'inline-flex' }}
-              >
+              <div className="bg-gray-100 rounded-xl about-feature-icon-wrap">
                 {icon}
               </div>
               <div>
-                <h3
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: '#1a1a2e',
-                    marginBottom: '0.4rem',
-                  }}
-                >
-                  {title}
-                </h3>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: 1.65 }}>{desc}</p>
+                <h3 className="about-feature-title">{title}</h3>
+                <p className="about-feature-desc">{desc}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* ── Who Uses Deciffer? ── */}
-        <section style={{ marginBottom: '1.5rem' }}>
-          <h2
-            style={{
-              fontFamily: "'Poppins', sans-serif",
-              fontSize: 'clamp(32px, 4vw, 48px)',
-              fontWeight: 700,
-              color: '#1a1a2e',
-              letterSpacing: '-0.02em',
-              textAlign: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
-            Who Uses Deciffer?
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <section className="about-users-section">
+          <h2 className="about-users-title">Who Uses Deciffer?</h2>
+          <div className="about-users-list">
             {USER_GROUPS.map(({ title, desc }) => (
               <div
                 key={title}
-                className="bg-white border border-gray-200 rounded-2xl shadow-sm"
-                style={{ padding: '1.25rem 1.5rem' }}
+                className="bg-white border border-gray-200 rounded-2xl shadow-sm about-user-card"
               >
-                <h3
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: '#1a1a2e',
-                    marginBottom: '0.35rem',
-                  }}
-                >
-                  {title}
-                </h3>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: 1.65 }}>{desc}</p>
+                <h3 className="about-user-title">{title}</h3>
+                <p className="about-user-desc">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ── Note on Technology ── */}
-        <div
-          className="border border-yellow-200 rounded-2xl"
-          style={{ padding: '1.5rem', background: '#fefce8' }}
-        >
-          <h3
-            style={{
-              fontFamily: "'Poppins', sans-serif",
-              fontSize: '0.95rem',
-              fontWeight: 700,
-              color: '#1a1a2e',
-              marginBottom: '0.5rem',
-            }}
-          >
-            Note on Technology
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: '#374151', lineHeight: 1.7 }}>
+        <div className="border border-yellow-200 rounded-2xl about-note-card">
+          <h3 className="about-note-title">Note on Technology</h3>
+          <p className="about-note-text">
             Deciffer is powered by an advanced AI multimodal vision model specifically optimised for historical
             German Fraktur typography. It supports multiple image formats and batch processing via ZIP upload,
             rapidly converting scanned documents into editable digital text that can be exported as PDF or DOCX
