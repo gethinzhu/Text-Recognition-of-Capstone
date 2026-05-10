@@ -20,7 +20,6 @@ import {
   faRotateLeft,
   faEraser,
   faLanguage,
-  faFileLines,
   faKey,
   faEye,
   faEyeSlash
@@ -634,6 +633,16 @@ const exportToDocx = async () => {
   const engineHoverText = isCalamariMode
     ? 'Using Calamari (free, no token usage). OCR quality can be lower than Gemini.'
     : 'Using Gemini (best OCR quality, uses API credits/tokens).';
+  const supportedFormatChips = [
+    'JPG',
+    'PNG',
+    'TIF',
+    'BMP',
+    'GIF',
+    'ZIP',
+    ...(isCalamariMode ? [] : ['Direct Text']),
+    'Camera Photo',
+  ];
 
   return (
     <div className={`translator-page${viewMode === 'results' ? ' results-mode' : ''}`}>
@@ -1059,6 +1068,7 @@ const exportToDocx = async () => {
                       text: value?.text,
                       sourceText: activeTab === 'text' ? inputText : undefined,
                       error: value?.error,
+                      engine: value?.engine ?? ocrEngine,
                     })
                   );
 
@@ -1100,7 +1110,7 @@ const exportToDocx = async () => {
         <div className="formats-bar">
           <span className="formats-bar-label">Supported Formats</span>
           <div className="formats-chips">
-            {['JPG', 'PNG', 'TIF', 'ZIP', 'Direct Text', 'Camera Photo'].map((f) => (
+            {supportedFormatChips.map((f) => (
               <span className="format-chip" key={f}>{f}</span>
             ))}
           </div>

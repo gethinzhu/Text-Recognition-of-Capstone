@@ -29,6 +29,7 @@ export interface TranslateResponse {
     error?: string;
     status?: string;
     preview_b64?: string;
+    engine?: 'gemini' | 'calamari';
   };
 }
 

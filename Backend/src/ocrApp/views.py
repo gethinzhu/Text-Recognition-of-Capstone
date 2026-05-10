@@ -25,6 +25,7 @@ from .serializers import (
     validate_image_file,
 )
 from .services import GeminiOCRService
+from .calamari_ocr_service import CalamariOCRService
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +195,12 @@ class ImageUploadAndRecogniseView(View):
 
     def post(self, request):
 
-        # Check if any files are uploaded
+        engine = request.POST.get("engine", "gemini").lower()
+        print("Selected engine:", engine)
+
+        if engine not in ["gemini", "calamari"]:
+            return JsonResponse({"error": "Invalid OCR engine selected."}, status=400)
+
         if not request.FILES:
             return JsonResponse({"error": "No files uploaded."}, status=400)
 
@@ -203,24 +209,23 @@ class ImageUploadAndRecogniseView(View):
         if not files:
             return JsonResponse({"error": "No image files found."}, status=400)
 
-        # Read user-supplied API key from header — used only for this request,
-        # never logged or persisted.
         raw_key = request.headers.get("X-User-Api-Key") or None
         user_api_key, key_error = _validate_user_api_key(raw_key)
+
         if key_error:
-            # Return the error without echoing the raw key value back to the client.
             return JsonResponse({"error": key_error}, status=400)
 
-        if user_api_key:
-            logger.info("Request is using a user-supplied API key.")
+        if engine == "gemini":
+            if user_api_key:
+                logger.info("Request is using a user-supplied API key.")
+            else:
+                logger.info("Request is using the server default API key.")
+
+            service = GeminiOCRService(api_key=user_api_key)
+
         else:
-            logger.info("Request is using the server default API key.")
+            service = CalamariOCRService()
 
-        service = GeminiOCRService(api_key=user_api_key)
-
-        # Collect all (name, file_bytes) tasks to process in parallel.
-        # Files are read into memory in the main thread before handing off,
-        # as Django's UploadedFile objects are not thread-safe.
         tasks: list[tuple[str, bytes]] = []
         results = {}
 
@@ -228,29 +233,25 @@ class ImageUploadAndRecogniseView(View):
             try:
                 file.seek(0)
 
-                # =========================
-                # ZIP FILE HANDLING
-                # =========================
                 if file.name.lower().endswith(".zip"):
 
                     with tempfile.TemporaryDirectory() as temp_dir:
-
                         zip_path = os.path.join(temp_dir, file.name)
 
                         with open(zip_path, "wb") as f:
                             for chunk in file.chunks():
                                 f.write(chunk)
 
-                        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                        with zipfile.ZipFile(zip_path, "r") as zip_ref:
                             for extracted_name in zip_ref.namelist():
 
-                                # Skip macOS metadata files (__MACOSX/ dir and ._* resource forks)
                                 base_filename = os.path.basename(extracted_name)
+
                                 if extracted_name.startswith("__MACOSX/") or base_filename.startswith("._"):
                                     continue
 
-                                # Security: prevent path traversal attacks
                                 extracted_path = os.path.realpath(os.path.join(temp_dir, extracted_name))
+
                                 if not extracted_path.startswith(os.path.realpath(temp_dir)):
                                     results[extracted_name] = {"error": "Blocked: path traversal detected."}
                                     continue
@@ -268,11 +269,9 @@ class ImageUploadAndRecogniseView(View):
                                 with open(extracted_path, "rb") as img_file:
                                     tasks.append((extracted_name, img_file.read()))
 
-                # =========================
-                # NORMAL IMAGE HANDLING
-                # =========================
                 else:
                     error = validate_image_file(file)
+
                     if error:
                         results[file.name] = {"error": error}
                         continue
@@ -282,21 +281,30 @@ class ImageUploadAndRecogniseView(View):
             except Exception as exc:
                 results[file.name] = {"error": str(exc)}
 
-        # Process all collected images in parallel
         def recognise_task(name: str, file_bytes: bytes) -> tuple[str, dict]:
             try:
                 text, preview_b64 = service.recognise(BytesIO(file_bytes))
-                return name, {"text": text, "preview_b64": preview_b64}
+
+                return name, {
+                    "text": text,
+                    "preview_b64": preview_b64,
+                    "engine": engine
+                }
+
             except Exception as e:
                 return name, {"error": str(e)}
 
         with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(recognise_task, name, data): name for name, data in tasks}
+            futures = {
+                executor.submit(recognise_task, name, data): name 
+                for name, data in tasks
+            }
+
             for future in as_completed(futures):
                 name, result = future.result()
                 results[name] = result
 
-        return JsonResponse(results, status=200)
+        return JsonResponse(results, status=200) 
 
 
 @method_decorator(csrf_exempt, name="dispatch")

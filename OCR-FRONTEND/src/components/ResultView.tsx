@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { CreditsErrorCard, isInsufficientCreditsError } from './CreditsErrorCard';
 import './ResultView.css';
 
@@ -7,6 +9,7 @@ export type ResultItem = {
   text?: string;
   sourceText?: string;
   error?: string;
+  engine?: 'gemini' | 'calamari';
 };
 
 type Props = {
@@ -33,6 +36,7 @@ export default function ResultView({ items, previews }: Props) {
   const active = items[safeIndex];
   const activePreview = previews[active.fileName];
   const hasSourceText = typeof active.sourceText === 'string' && active.sourceText.length > 0;
+  const isCalamariResult = active.engine === 'calamari';
   const minZoom = 1;
   const maxZoom = 4;
 
@@ -198,6 +202,16 @@ export default function ResultView({ items, previews }: Props) {
 
         <div className="panel result-output-panel">
           <div className="panel-title">Recognised Text</div>
+          {isCalamariResult && (
+            <div className="calamari-result-warning" role="alert">
+              <span className="calamari-result-warning-icon" aria-hidden="true">
+                <FontAwesomeIcon icon={faTriangleExclamation} />
+              </span>
+              <span>
+                Calamari recognition quality may be poor for this input. For better OCR results, please use the Gemini API.
+              </span>
+            </div>
+          )}
           <div className="result-output-scroll">
             {renderOutput()}
           </div>

@@ -1,30 +1,34 @@
-# Use official Python slim image
-FROM python:3.12-slim
+FROM --platform=linux/amd64 python:3.11-slim
 
-# Prevent Python from writing .pyc files and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set working directory
-WORKDIR /app/backend
+WORKDIR /app/backend/src
 
-# Install system dependencies (for MySQL or others)
 RUN apt-get update && apt-get install -y \
     build-essential \
     pkg-config \
     libmariadb-dev \
     netcat-openbsd \
+    libxml2-dev \
+    libxslt1-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+COPY src/requirements.txt /app/backend/src/requirements.txt
 
-# Copy the rest of the code
-COPY . /app/backend
+RUN pip install --upgrade pip wheel
+RUN pip install "setuptools<81"
+RUN pip install --no-cache-dir -r /app/backend/src/requirements.txt
 
-# Expose Django port
+COPY src /app/backend/src
+COPY ml_models /app/backend/ml_models
+
 EXPOSE 8000
 
-# Default command to run Django server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
