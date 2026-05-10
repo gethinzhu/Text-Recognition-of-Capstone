@@ -92,8 +92,10 @@ describe('ResultView', () => {
       'file2.jpg': 'data:image/jpeg;base64,bbb',
     };
     render(<ResultView items={items} previews={previews} />);
-    expect(screen.getByText('file1.jpg')).toBeInTheDocument();
-    expect(screen.getByText('file2.jpg')).toBeInTheDocument();
+    const tabs = screen.getAllByRole('button');
+    expect(tabs).toHaveLength(2);
+    expect(tabs[0]).toHaveAttribute('title', 'file1.jpg');
+    expect(tabs[1]).toHaveAttribute('title', 'file2.jpg');
   });
 
   it('switches active tab on click', async () => {
