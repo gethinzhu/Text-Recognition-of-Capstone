@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import '../css/TranslatorPage.css';
 import { handleTranslate } from '../api';
 import { jsPDF } from 'jspdf';
@@ -50,6 +50,7 @@ export default function TranslatorPage() {
   const [activeTab, setActiveTab] = useState<Tab>('text');
   const [inputText, setInputText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isFileDragActive, setIsFileDragActive] = useState(false);
   const [cameraFile, setCameraFile] = useState<File | null>(null);
   const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -363,7 +364,67 @@ export default function TranslatorPage() {
   };
 
   const handleFileChange = (files: FileList | null) => {
-    setSelectedFiles(Array.from(files || []));
+    const nextFiles = Array.from(files || []);
+    setSelectedFiles(nextFiles);
+
+    if (nextFiles.length > 0) {
+      setError(null);
+    }
+  };
+
+  const handleFileDragEnter = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsFileDragActive(true);
+  };
+
+  const handleFileDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsFileDragActive(true);
+  };
+
+  const handleFileDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+
+    setIsFileDragActive(false);
+  };
+
+  const handleFileDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsFileDragActive(false);
+
+    const files = event.dataTransfer.files;
+    if (files.length === 0) {
+      return;
+    }
+
+    handleFileChange(files);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const openFileBrowser = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileDropZoneKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    openFileBrowser();
   };
 
   const handleCameraFileChange = (files: FileList | null) => {
@@ -869,7 +930,17 @@ const exportToDocx = async () => {
 
             {/* File Tab */}
             {activeTab === 'file' && (
-              <div className="file-drop-zone">
+              <div
+                className={`file-drop-zone${isFileDragActive ? ' drag-active' : ''}`}
+                role="button"
+                tabIndex={0}
+                onClick={openFileBrowser}
+                onKeyDown={handleFileDropZoneKeyDown}
+                onDragEnter={handleFileDragEnter}
+                onDragOver={handleFileDragOver}
+                onDragLeave={handleFileDragLeave}
+                onDrop={handleFileDrop}
+              >
               <div className="file-drop-icon">
                 <FontAwesomeIcon icon={faUpload} />
               </div>
@@ -897,7 +968,10 @@ const exportToDocx = async () => {
               <label htmlFor="file-input" style={{ display: 'none' }} />
               <button 
               className="file-browse-btn" 
-              onClick={() => fileInputRef.current?.click()}
+              onClick={(event) => {
+                event.stopPropagation();
+                openFileBrowser();
+              }}
               >
               Select File
               </button>
