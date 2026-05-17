@@ -138,7 +138,7 @@ describe('TranslatorPage', () => {
     const user = userEvent.setup();
     renderPage();
     await user.click(screen.getByText('File'));
-    expect(screen.getByRole('button', { name: /Select File/i })).toBeInTheDocument();
+    expect(screen.getByText('Select File', { selector: 'button' })).toBeInTheDocument();
   });
 
   it('Recognise Text button is disabled on File tab with no file selected', async () => {
