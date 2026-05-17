@@ -158,3 +158,21 @@
     grid-template-columns: 1fr;
   }
 }
+.about-project-section {
+  margin-top: 56px;
+  padding: 28px 32px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.about-project-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4b5563;
+  margin-top: 12px;
+}
+
+.about-project-text:first-of-type {
+  margin-top: 0;
+}
