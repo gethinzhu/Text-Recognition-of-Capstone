@@ -78,4 +78,33 @@ describe('Navbar', () => {
     const el = screen.getByText(ctaLink.label).closest('a');
     expect(el?.className).toContain('cta');
   });
+
+  it('passes the api key from localStorage to getCredits', async () => {
+    localStorage.setItem('openrouter_api_key', 'sk-my-key');
+    vi.mocked(api.getCredits).mockResolvedValue({ remaining: 2.0 });
+    renderNavbar();
+    await waitFor(() => {
+      expect(api.getCredits).toHaveBeenCalledWith('sk-my-key');
+    });
+  });
+
+  it('re-fetches credits when apikey-changed event fires', async () => {
+    vi.mocked(api.getCredits)
+      .mockResolvedValueOnce({ remaining: 1.0 })
+      .mockResolvedValueOnce({ remaining: 3.0 });
+    renderNavbar();
+    await waitFor(() => expect(screen.getByText('$1.00')).toBeInTheDocument());
+    window.dispatchEvent(new Event('apikey-changed'));
+    await waitFor(() => expect(screen.getByText('$3.00')).toBeInTheDocument());
+  });
+
+  it('re-fetches credits when credits-refresh event fires', async () => {
+    vi.mocked(api.getCredits)
+      .mockResolvedValueOnce({ remaining: 5.0 })
+      .mockResolvedValueOnce({ remaining: 4.0 });
+    renderNavbar();
+    await waitFor(() => expect(screen.getByText('$5.00')).toBeInTheDocument());
+    window.dispatchEvent(new Event('credits-refresh'));
+    await waitFor(() => expect(screen.getByText('$4.00')).toBeInTheDocument());
+  });
 });
