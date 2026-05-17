@@ -106,8 +106,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <div className="border border-yellow-200 rounded-2xl about-note-card">
-          <h3 className="about-note-title">Project Information</h3>
+        <div className="border border-yellow-200 rounded-2xl about-project-card">
+          <h3 className="about-project-title">Project Information</h3>
           <p className="about-project-text">
             Deciffer is an academic software project developed as part of the
             Information Technology Capstone Project unit at The University of
