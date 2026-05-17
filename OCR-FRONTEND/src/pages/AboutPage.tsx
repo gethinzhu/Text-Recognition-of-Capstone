@@ -106,17 +106,25 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Note on Technology ── */}
-        <div className="border border-yellow-200 rounded-2xl about-note-card">
-          <h3 className="about-note-title">Note on Technology</h3>
-          <p className="about-note-text">
-            Deciffer is powered by an advanced AI multimodal vision model specifically optimised for historical
-            German Fraktur typography. It supports multiple image formats and batch processing via ZIP upload,
-            rapidly converting scanned documents into editable digital text that can be exported as PDF or DOCX
-            — ready for academic and professional research use.
+        <div className="border border-yellow-200 rounded-2xl about-project-card">
+          <h3 className="about-project-title">Project Information</h3>
+          <p className="about-project-text">
+            Deciffer is an academic software project developed as part of the
+            Information Technology Capstone Project unit at The University of
+            Western Australia (UWA), 2026.
+          </p>
+
+          <p className="about-project-text">
+            The project focuses on recognising and processing historical
+            Fraktur documents into readable modern text using OCR and AI-assisted
+            text recognition technologies.
+          </p>
+
+          <p className="about-project-text">
+            Developed by Aksa Benny, Alwyn Sajan, Guoxing Zhu,
+            Ying Hu, and Zhengdong Jiang. 
           </p>
         </div>
-
       </div>
     </div>
   );
