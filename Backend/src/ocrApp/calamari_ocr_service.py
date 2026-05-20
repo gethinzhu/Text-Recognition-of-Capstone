@@ -5,11 +5,13 @@ import subprocess
 import tempfile
 from io import BytesIO
 from pathlib import Path
-
-import kraken
+from django.conf import settings
 from PIL import Image, ImageFilter, ImageOps
-from kraken import blla, binarization
-from kraken.lib import vgsl
+
+if settings.LOCAL_OCR:
+    import kraken
+    from kraken import blla, binarization
+    from kraken.lib import vgsl
 
 from .preprocessing import convert_file_to_base64_jpg
 
