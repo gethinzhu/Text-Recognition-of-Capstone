@@ -230,3 +230,6 @@ node -v
 ```bash
 npm update
 ```
+
+## Contact
+If you encounter any issues or need further assistance, please contact us at **deciffer.contact@gmail.com**.
