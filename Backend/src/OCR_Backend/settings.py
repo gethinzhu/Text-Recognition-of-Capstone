@@ -148,6 +148,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
 OPENROUTER_MODEL = os.environ.get('OPENROUTER_MODEL', "google/gemini-3.1-pro-preview")  # Default to a placeholder if not set
 OPENROUTER_BASE_URL = os.environ.get('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
+LOCAL_OCR = os.environ.get('LOCAL_OCR', 'False') == 'True'
 
 # Email settings for Contact page notifications.
 # For Gmail, EMAIL_HOST_PASSWORD should be an app password, not the account password.
