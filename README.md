@@ -67,6 +67,7 @@ cd Backend/src
 ```
 
 #### Step 2: Build and start container
+If this is your first time running the project, the initial setup may take 1-2 hours while Docker downloads images, installs dependencies, and builds the environment.
 
 ```
 docker-compose up --build
