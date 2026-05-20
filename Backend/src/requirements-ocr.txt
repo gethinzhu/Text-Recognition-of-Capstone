@@ -1,0 +1,3 @@
+# OCR - recognition
+calamari-ocr==2.3.0
+kraken==4.3.13
