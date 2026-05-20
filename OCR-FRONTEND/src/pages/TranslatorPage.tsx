@@ -57,7 +57,7 @@ export default function TranslatorPage() {
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraDevices, setCameraDevices] = useState<CameraOption[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState('');
-  const [ocrEngine, setOcrEngine] = useState<OcrEngine>('gemini');
+  const [ocrEngine] = useState<OcrEngine>('gemini');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_api_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -687,13 +687,10 @@ const exportToDocx = async () => {
       : activeTab === 'file'
         ? selectedFiles.length > 0
         : Boolean(cameraFile);
-  const isCalamariMode = ocrEngine === 'calamari';
+  const isCalamariMode = false;
   const isTextCalamariBlocked = activeTab === 'text' && isCalamariMode;
-  const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
-  const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
-  const engineHoverText = isCalamariMode
-    ? 'Using Calamari (free, no token usage). OCR quality can be lower than Gemini.'
-    : 'Using Gemini (best OCR quality, uses API credits/tokens).';
+  const engineDisplayName = 'Gemini';
+  const engineHoverText = 'Calamari not supported at the moment.';
   const supportedFormatChips = [
     'JPG',
     'PNG',
@@ -721,14 +718,7 @@ const exportToDocx = async () => {
               <button
                 type="button"
                 className={`translator-api-trigger${showApiPanel ? ' open' : ''}`}
-                onClick={() => {
-                  if (isCalamariMode) {
-                    setOcrEngine('gemini');
-                    setShowApiPanel(true);
-                    return;
-                  }
-                  setShowApiPanel((v) => !v);
-                }}
+                onClick={() => setShowApiPanel((v) => !v)}
                 title="API key settings"
               >
                 <FontAwesomeIcon icon={faKey} />
@@ -736,43 +726,21 @@ const exportToDocx = async () => {
               </button>
 
               <div className="translator-engine-trigger-wrap">
-                {isCalamariMode ? (
-                  <button
-                    type="button"
-                    className="translator-engine-trigger mode-pill mode-calamari"
-                    onClick={() => {
-                      setOcrEngine('gemini');
-                      setShowApiPanel(false);
-                    }}
-                    role="switch"
-                    aria-checked="true"
-                    aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
-                  >
-                    <span className="engine-switch-track" aria-hidden="true">
-                      <span className="engine-switch-thumb" />
-                    </span>
-                    <span>{engineDisplayName}</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="translator-engine-trigger mode-pill mode-gemini"
-                    onClick={() => {
-                      setOcrEngine('calamari');
-                      setShowApiPanel(false);
-                    }}
-                    role="switch"
-                    aria-checked="false"
-                    aria-label={`OCR engine is ${engineDisplayName}. Click to switch to ${nextEngineDisplayName}.`}
-                  >
-                    <span className="engine-switch-track" aria-hidden="true">
-                      <span className="engine-switch-thumb" />
-                    </span>
-                    <span>{engineDisplayName}</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="translator-engine-trigger mode-pill mode-gemini"
+                  role="switch"
+                  aria-checked="false"
+                  aria-label="OCR engine is Gemini. Calamari is not supported."
+                  disabled
+                >
+                  <span className="engine-switch-track" aria-hidden="true">
+                    <span className="engine-switch-thumb" />
+                  </span>
+                  <span>{engineDisplayName}</span>
+                </button>
                 <div className="translator-engine-tooltip">
-                  {engineHoverText} Click to switch to {nextEngineDisplayName}.
+                  {engineHoverText}
                 </div>
               </div>
             </div>
