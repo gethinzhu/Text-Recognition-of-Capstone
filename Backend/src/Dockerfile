@@ -20,14 +20,14 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY src/requirements.txt /app/backend/src/requirements.txt
+COPY Backend/src/requirements.txt /app/backend/src/requirements.txt
 
 RUN pip install --upgrade pip wheel
 RUN pip install "setuptools<81"
 RUN pip install --no-cache-dir -r /app/backend/src/requirements.txt
 
-COPY src /app/backend/src
-COPY ml_models /app/backend/ml_models
+COPY Backend/src /app/backend/src
+COPY Backend/ml_models /app/backend/ml_models
 
 EXPOSE 8000
 
