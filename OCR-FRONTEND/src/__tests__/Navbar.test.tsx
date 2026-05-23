@@ -17,6 +17,12 @@ const renderNavbar = (initialPath = '/') =>
     </MemoryRouter>
   );
 
+const credits = (remaining: number) => ({
+  total_credits: remaining,
+  total_usage: 0,
+  remaining,
+});
+
 describe('Navbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,7 +62,7 @@ describe('Navbar', () => {
   });
 
   it('shows credits when API returns a value', async () => {
-    vi.mocked(api.getCredits).mockResolvedValue({ remaining: 3.75 });
+    vi.mocked(api.getCredits).mockResolvedValue(credits(3.75));
     renderNavbar();
     await waitFor(() => {
       expect(screen.getByText('$3.75')).toBeInTheDocument();
@@ -81,7 +87,7 @@ describe('Navbar', () => {
 
   it('passes the api key from localStorage to getCredits', async () => {
     localStorage.setItem('openrouter_api_key', 'sk-my-key');
-    vi.mocked(api.getCredits).mockResolvedValue({ remaining: 2.0 });
+    vi.mocked(api.getCredits).mockResolvedValue(credits(2.0));
     renderNavbar();
     await waitFor(() => {
       expect(api.getCredits).toHaveBeenCalledWith('sk-my-key');
@@ -90,8 +96,8 @@ describe('Navbar', () => {
 
   it('re-fetches credits when apikey-changed event fires', async () => {
     vi.mocked(api.getCredits)
-      .mockResolvedValueOnce({ remaining: 1.0 })
-      .mockResolvedValueOnce({ remaining: 3.0 });
+      .mockResolvedValueOnce(credits(1.0))
+      .mockResolvedValueOnce(credits(3.0));
     renderNavbar();
     await waitFor(() => expect(screen.getByText('$1.00')).toBeInTheDocument());
     window.dispatchEvent(new Event('apikey-changed'));
@@ -100,8 +106,8 @@ describe('Navbar', () => {
 
   it('re-fetches credits when credits-refresh event fires', async () => {
     vi.mocked(api.getCredits)
-      .mockResolvedValueOnce({ remaining: 5.0 })
-      .mockResolvedValueOnce({ remaining: 4.0 });
+      .mockResolvedValueOnce(credits(5.0))
+      .mockResolvedValueOnce(credits(4.0));
     renderNavbar();
     await waitFor(() => expect(screen.getByText('$5.00')).toBeInTheDocument());
     window.dispatchEvent(new Event('credits-refresh'));

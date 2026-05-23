@@ -55,22 +55,22 @@ class MockXHR {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function makeFetchOk(body: unknown, status = 200) {
+function makeFetchOk(body: unknown, status = 200): Response {
   return {
     ok: true,
     status,
     statusText: 'OK',
     json: vi.fn().mockResolvedValue(body),
-  };
+  } as unknown as Response;
 }
 
-function makeFetchError(status: number, body: unknown = null) {
+function makeFetchError(status: number, body: unknown = null): Response {
   return {
     ok: false,
     status,
     statusText: 'Error',
     json: vi.fn().mockResolvedValue(body),
-  };
+  } as unknown as Response;
 }
 
 function makeFile(name = 'scan.jpg', type = 'image/jpeg'): File {

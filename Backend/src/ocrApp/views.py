@@ -180,12 +180,12 @@ class TextRecogniseView(View):
         except Exception as exc:
             logger.exception("Failed to process direct text input.")
             return JsonResponse(
-                {"text-input.txt": {"error": str(exc)}},
+                {"text-input.txt": {"error": str(exc), "engine": "gemini"}},
                 status=200,
             )
 
         return JsonResponse(
-            {"text-input.txt": {"text": processed_text}},
+            {"text-input.txt": {"text": processed_text, "engine": "gemini"}},
             status=200,
         )
 

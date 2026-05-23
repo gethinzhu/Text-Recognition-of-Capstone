@@ -688,7 +688,8 @@ const exportToDocx = async () => {
         ? selectedFiles.length > 0
         : Boolean(cameraFile);
   const isCalamariMode = ocrEngine === 'calamari';
-  const isTextCalamariBlocked = activeTab === 'text' && isCalamariMode;
+  const effectiveEngine: OcrEngine = activeTab === 'text' ? 'gemini' : ocrEngine;
+  const effectiveEngineDisplayName = effectiveEngine === 'calamari' ? 'Calamari' : 'Gemini';
   const engineDisplayName = isCalamariMode ? 'Calamari' : 'Gemini';
   const nextEngineDisplayName = isCalamariMode ? 'Gemini' : 'Calamari';
   const engineHoverText = isCalamariMode
@@ -875,7 +876,9 @@ const exportToDocx = async () => {
           <div className="processing-banner">
             <div className="processing-spinner" />
             <span>
-              Recognising your file with {engineDisplayName}... This may take a few moments.
+              {activeTab === 'text'
+                ? `Refining your text with ${effectiveEngineDisplayName}... This may take a few moments.`
+                : `Recognising your file with ${effectiveEngineDisplayName}... This may take a few moments.`}
             </span>
           </div>
         )}
@@ -1101,11 +1104,8 @@ const exportToDocx = async () => {
             <div className="input-actions">
               <button 
               className="btn-translate" 
-              disabled={!hasInput || loading || isTextCalamariBlocked}
+              disabled={!hasInput || loading}
               onClick={async () => {
-                if (isTextCalamariBlocked) {
-                  return;
-                }
                 setLoadingPhase('uploading');
                 setError(null);
                 setOutputItems([]);
@@ -1127,10 +1127,10 @@ const exportToDocx = async () => {
                     type: activeTab === 'text' ? 'text' : 'file',
                     data: uploadPayload,
                     apiKey: apiKey.trim() || undefined,
-                    engine: ocrEngine,
+                    engine: effectiveEngine,
                     onUploadDone: () => {
                       setLoadingPhase('processing');
-                      if (activeTab !== 'text') {
+                      if (effectiveEngine === 'gemini') {
                         window.dispatchEvent(new Event('credits-refresh'));
                       }
                     },
@@ -1142,7 +1142,7 @@ const exportToDocx = async () => {
                       text: value?.text,
                       sourceText: activeTab === 'text' ? inputText : undefined,
                       error: value?.error,
-                      engine: value?.engine ?? ocrEngine,
+                      engine: value?.engine ?? effectiveEngine,
                     })
                   );
 
@@ -1164,7 +1164,7 @@ const exportToDocx = async () => {
               }}
               >
               <FontAwesomeIcon icon={faLanguage} />
-              {loading ? `Recognising with ${engineDisplayName}...` : 'Recognise Text'}
+              {loading ? `Recognising with ${effectiveEngineDisplayName}...` : 'Recognise Text'}
               </button>
               <button
                 className="btn-clear"

@@ -5,10 +5,11 @@ from unittest.mock import Mock, patch
 
 import requests
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from PIL import Image
 
 from .models import ContactMessage
+from .services import GeminiOCRService, TEXT_SYSTEM_PROMPT
 
 
 def create_test_image(name="page.jpg", fmt="JPEG", content_type="image/jpeg"):
@@ -219,6 +220,51 @@ class TextInputApiTests(TestCase):
         data = response.json()
         self.assertIn("text-input.txt", data)
         self.assertIn("OpenRouter unavailable", data["text-input.txt"]["error"])
+
+
+@override_settings(
+    OPENROUTER_API_KEY="server-key",
+    OPENROUTER_MODEL="google/test-model",
+    OPENROUTER_BASE_URL="https://openrouter.test/api/v1",
+)
+class GeminiOCRServiceTextTests(TestCase):
+    @patch("ocrApp.services.requests.post")
+    def test_process_text_posts_plain_text_request_and_returns_result(self, mock_post):
+        fake_response = Mock()
+        fake_response.status_code = 200
+        fake_response.json.return_value = {
+            "choices": [
+                {
+                    "message": {
+                        "content": "  Moderner deutscher Text  ",
+                    }
+                }
+            ]
+        }
+        mock_post.return_value = fake_response
+
+        service = GeminiOCRService()
+        result = service.process_text("  Historischer Fraktur Text  ")
+
+        self.assertEqual(result, "Moderner deutscher Text")
+        mock_post.assert_called_once()
+
+        kwargs = mock_post.call_args.kwargs
+        self.assertEqual(kwargs["headers"]["Authorization"], "Bearer server-key")
+        self.assertEqual(kwargs["json"]["model"], "google/test-model")
+        self.assertEqual(
+            kwargs["json"]["messages"],
+            [
+                {"role": "system", "content": TEXT_SYSTEM_PROMPT},
+                {"role": "user", "content": "Historischer Fraktur Text"},
+            ],
+        )
+
+    def test_process_text_rejects_blank_input(self):
+        service = GeminiOCRService()
+
+        with self.assertRaises(ValueError):
+            service.process_text("   ")
 
 
 class CreditsApiTests(TestCase):
