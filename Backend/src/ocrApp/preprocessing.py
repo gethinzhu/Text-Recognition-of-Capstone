@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageFilter
 from io import BytesIO
 import base64
 
@@ -21,13 +21,31 @@ def convert_file_to_base64_jpg(file) -> str:
     if img.mode != "RGB":
         img = img.convert("RGB")
 
-    # Resize to reduce payload (VERY IMPORTANT)
-    max_size = (1200, 1200)
-    img.thumbnail(max_size)
+    # Resize only if image is too large
+    # Preserve aspect ratio to maintain newspaper readability
+    MAX_WIDTH = 1800
+
+    if img.width > MAX_WIDTH:
+        ratio = MAX_WIDTH / img.width
+        new_height = int(img.height * ratio)
+
+        img = img.resize(
+            (MAX_WIDTH, new_height),
+            Image.LANCZOS
+        )
+
+    # Apply sharpening for better Fraktur readability
+    img = img.filter(
+        ImageFilter.UnsharpMask(
+            radius=1,
+            percent=150,
+            threshold=3
+        )
+    )
 
     # Save as compressed JPEG
     output = BytesIO()
-    img.save(output, format="JPEG", quality=65, optimize=True)
+    img.save(output, format="JPEG", quality=90, optimize=True)
 
     output.seek(0)
 
