@@ -1,11 +1,11 @@
-import base64
 import logging
-import mimetypes
-from urllib import response
+import time
+
 import requests
 from django.conf import settings
+
 from .preprocessing import convert_file_to_base64_jpg
-import time
+
 logger = logging.getLogger(__name__)
 
 # The prompt sent to Gemini for Fraktur OCR recognition
@@ -43,6 +43,61 @@ class GeminiOCRService:
         self.base_url = settings.OPENROUTER_BASE_URL
         self.url = f"{self.base_url}/chat/completions"
 
+    @staticmethod
+    def _extract_completion_text(response_json) -> str:
+        if "choices" not in response_json or not response_json["choices"]:
+            raise Exception(f"Invalid API response: {response_json}")
+
+        choice = response_json["choices"][0]
+        content = choice.get("message", {}).get("content")
+
+        if isinstance(content, list):
+            content = "".join(
+                part.get("text", "")
+                for part in content
+                if isinstance(part, dict)
+            )
+
+        if not isinstance(content, str) or not content.strip():
+            finish_reason = choice.get("finish_reason", "unknown")
+            raise Exception(
+                f"Model returned empty content "
+                f"(finish_reason: {finish_reason})."
+            )
+
+        return content.strip()
+
+    def _request_chat_completion(self, messages) -> str:
+        if not self.api_key:
+            raise Exception("OpenRouter API key is not configured.")
+
+        payload = {
+            "model": self.model,
+            "messages": messages,
+        }
+
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.post(
+            self.url,
+            headers=headers,
+            json=payload,
+            timeout=300,
+        )
+
+        if response.status_code != 200:
+            raise Exception(f"API request failed: {response.text}")
+
+        try:
+            response_json = response.json()
+        except ValueError:
+            raise Exception(f"Invalid JSON response: {response.text}")
+
+        return self._extract_completion_text(response_json)
+
     def recognise(self, file) -> tuple[str, str]:
         """
         Returns (recognised_text, preview_b64).
@@ -75,45 +130,8 @@ class GeminiOCRService:
                     }
                 ]
 
-                payload = {
-                    "model": self.model,
-                    "messages": messages,
-                }
-
-                headers = {
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                }
-
-                response = requests.post(
-                    self.url,
-                    headers=headers,
-                    json=payload,
-                    timeout=300,
-                )
-
-                if response.status_code != 200:
-                    raise Exception(f"API request failed: {response.text}")
-
-                try:
-                    response_json = response.json()
-                except ValueError:
-                    raise Exception(f"Invalid JSON response: {response.text}")
-
-                if "choices" not in response_json or not response_json["choices"]:
-                    raise Exception(f"Invalid API response: {response_json}")
-
-                choice = response_json["choices"][0]
-                content = choice.get("message", {}).get("content")
-
-                if not content or not content.strip():
-                    finish_reason = choice.get("finish_reason", "unknown")
-                    raise Exception(
-                        f"Model returned empty content "
-                        f"(finish_reason: {finish_reason})."
-                    )
-
-                return content.strip(), image_b64
+                content = self._request_chat_completion(messages)
+                return content, image_b64
 
             except Exception as e:
                 last_error = e
@@ -123,3 +141,41 @@ class GeminiOCRService:
                     time.sleep(2)
 
         raise Exception(f"Gemini OCR failed after {max_attempts} attempts: {last_error}")
+
+    def process_text(self, text: str) -> str:
+        """
+        Refine direct Fraktur/transcribed text input through Gemini/OpenRouter.
+        """
+
+        cleaned_text = text.strip()
+        if not cleaned_text:
+            raise ValueError("No text provided.")
+
+        messages = [
+            {
+                "role": "system",
+                "content": TEXT_SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": cleaned_text,
+            },
+        ]
+
+        max_attempts = 3
+        last_error = None
+
+        for attempt in range(max_attempts):
+            try:
+                return self._request_chat_completion(messages)
+
+            except Exception as e:
+                last_error = e
+                print(f"Gemini text refinement attempt {attempt + 1} failed: {e}")
+
+                if attempt < max_attempts - 1:
+                    time.sleep(2)
+
+        raise Exception(
+            f"Gemini text refinement failed after {max_attempts} attempts: {last_error}"
+        )

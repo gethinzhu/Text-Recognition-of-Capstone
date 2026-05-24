@@ -74,9 +74,6 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-const makeFile = (name = 'scan.jpg', type = 'image/jpeg') =>
-  new File(['binary'], name, { type });
-
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
 describe('TranslatorPage', () => {
@@ -221,15 +218,29 @@ describe('TranslatorPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('disables Recognise Text button in Calamari mode on text tab', async () => {
+  it('processes text with Gemini when Calamari mode is selected', async () => {
     const user = userEvent.setup();
+    vi.mocked(api.handleTranslate).mockResolvedValueOnce({
+      direct_text: { text: 'Recognised text', engine: 'gemini' },
+    });
+
     renderPage();
     await user.type(
       screen.getByPlaceholderText(/Paste or type your Fraktur text/i),
       'Some text'
     );
     await user.click(screen.getByRole('switch', { name: /OCR engine is Gemini/i }));
-    expect(screen.getByRole('button', { name: /Recognise Text/i })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: /Recognise Text/i }));
+
+    await waitFor(() => {
+      expect(api.handleTranslate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'text',
+          data: 'Some text',
+          engine: 'gemini',
+        })
+      );
+    });
   });
 
   // ── API Key Panel ────────────────────────────────────────────────────────────

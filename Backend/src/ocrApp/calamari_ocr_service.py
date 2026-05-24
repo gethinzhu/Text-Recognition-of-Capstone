@@ -6,10 +6,20 @@ import tempfile
 from io import BytesIO
 from pathlib import Path
 
-import kraken
 from PIL import Image, ImageFilter, ImageOps
-from kraken import blla, binarization
-from kraken.lib import vgsl
+
+try:
+    import kraken
+    from kraken import blla, binarization
+    from kraken.lib import vgsl
+except ImportError as exc:
+    kraken = None
+    blla = None
+    binarization = None
+    vgsl = None
+    KRAKEN_IMPORT_ERROR = exc
+else:
+    KRAKEN_IMPORT_ERROR = None
 
 from .preprocessing import convert_file_to_base64_jpg
 
@@ -25,6 +35,12 @@ def merge_calamari_lines(lines: list[str]) -> str:
 
 class CalamariOCRService:
     def __init__(self):
+        if KRAKEN_IMPORT_ERROR is not None:
+            raise RuntimeError(
+                "Calamari dependencies are not installed. "
+                "Install kraken/calamari or use Gemini mode."
+            ) from KRAKEN_IMPORT_ERROR
+
         self.model_path = (
             Path(__file__).resolve().parents[2]
             / "ml_models"
